@@ -17,6 +17,11 @@ interface ChatResponse {
   isComplete: boolean;
 }
 
+interface CoreMessage {
+  role: "user" | "assistant" | "system";
+  content: unknown;
+}
+
 // Sidebar specific APIs
 const sidebarAPI = {
   // Chat functionality
@@ -31,9 +36,9 @@ const sidebarAPI = {
     electronAPI.ipcRenderer.on("chat-response", (_, data) => callback(data));
   },
 
-  onMessagesUpdated: (callback: (messages: any[]) => void) => {
+  onMessagesUpdated: (callback: (messages: CoreMessage[]) => void) => {
     electronAPI.ipcRenderer.on("chat-messages-updated", (_, messages) =>
-      callback(messages)
+      callback(messages),
     );
   },
 
