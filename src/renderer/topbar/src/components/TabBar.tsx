@@ -1,6 +1,6 @@
 import React from "react";
 import { Plus, X } from "lucide-react";
-import { useBrowser } from "../contexts/BrowserContext";
+import { useBrowser } from "../hooks/useBrowser";
 import { Favicon } from "../components/Favicon";
 import { TabBarButton } from "../components/TabBarButton";
 import { cn } from "@common/lib/utils";
@@ -71,14 +71,14 @@ const TabItem: React.FC<TabItemProps> = ({
 };
 
 export const TabBar: React.FC = () => {
-  const { tabs, createTab, closeTab, switchTab, isLoading } = useBrowser();
+  const { tabs, createTab, closeTab, switchTab } = useBrowser();
 
-  const handleCreateTab = () => {
+  const handleCreateTab = (): void => {
     createTab("https://www.google.com");
   };
 
   // Extract favicon from URL (simplified - you might want to improve this)
-  const getFavicon = (url: string) => {
+  const getFavicon = (url: string): string | null => {
     try {
       const domain = new URL(url).hostname;
       return `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;

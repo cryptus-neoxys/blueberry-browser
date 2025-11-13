@@ -1,10 +1,5 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  useCallback,
-} from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { BrowserContext, type BrowserContextType } from "./BrowserContext";
 
 interface TabInfo {
   id: string;
@@ -12,38 +7,6 @@ interface TabInfo {
   url: string;
   isActive: boolean;
 }
-
-interface BrowserContextType {
-  tabs: TabInfo[];
-  activeTab: TabInfo | null;
-  isLoading: boolean;
-
-  // Tab management
-  createTab: (url?: string) => Promise<void>;
-  closeTab: (tabId: string) => Promise<void>;
-  switchTab: (tabId: string) => Promise<void>;
-  refreshTabs: () => Promise<void>;
-
-  // Navigation
-  navigateToUrl: (url: string) => Promise<void>;
-  goBack: () => Promise<void>;
-  goForward: () => Promise<void>;
-  reload: () => Promise<void>;
-
-  // Tab actions
-  takeScreenshot: (tabId: string) => Promise<string | null>;
-  runJavaScript: (tabId: string, code: string) => Promise<any>;
-}
-
-const BrowserContext = createContext<BrowserContextType | null>(null);
-
-export const useBrowser = () => {
-  const context = useContext(BrowserContext);
-  if (!context) {
-    throw new Error("useBrowser must be used within a BrowserProvider");
-  }
-  return context;
-};
 
 export const BrowserProvider: React.FC<{ children: React.ReactNode }> = ({
   children,

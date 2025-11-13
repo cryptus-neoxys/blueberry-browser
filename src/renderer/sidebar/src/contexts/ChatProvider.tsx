@@ -1,42 +1,13 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  useCallback,
-} from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { ChatContext, type ChatContextType } from "./ChatContext";
 
 interface Message {
   id: string;
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "system";
   content: string;
   timestamp: number;
   isStreaming?: boolean;
 }
-
-interface ChatContextType {
-  messages: Message[];
-  isLoading: boolean;
-
-  // Chat actions
-  sendMessage: (content: string) => Promise<void>;
-  clearChat: () => void;
-
-  // Page content access
-  getPageContent: () => Promise<string | null>;
-  getPageText: () => Promise<string | null>;
-  getCurrentUrl: () => Promise<string | null>;
-}
-
-const ChatContext = createContext<ChatContextType | null>(null);
-
-export const useChat = () => {
-  const context = useContext(ChatContext);
-  if (!context) {
-    throw new Error("useChat must be used within a ChatProvider");
-  }
-  return context;
-};
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -46,23 +17,28 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Load initial messages from main process
   useEffect(() => {
-    const loadMessages = async () => {
+    const loadMessages = async (): Promise<void> => {
       try {
         const storedMessages = await window.sidebarAPI.getMessages();
         if (storedMessages && storedMessages.length > 0) {
           // Convert CoreMessage format to our frontend Message format
-          const convertedMessages = storedMessages.map(
-            (msg: any, index: number) => ({
+          const convertedMessages = storedMessages.map((msg, index: number) => {
+            const contentText =
+              typeof msg.content === "string"
+                ? msg.content
+                : Array.isArray(msg.content)
+                  ? msg.content.find((p: { type: string }) => p.type === "text")
+                      ?.text || ""
+                  : "";
+
+            return {
               id: `msg-${index}`,
               role: msg.role,
-              content:
-                typeof msg.content === "string"
-                  ? msg.content
-                  : msg.content.find((p: any) => p.type === "text")?.text || "",
+              content: contentText,
               timestamp: Date.now(),
               isStreaming: false,
-            }),
-          );
+            };
+          });
           setMessages(convertedMessages);
         }
       } catch (error) {
@@ -135,27 +111,34 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       messageId: string;
       content: string;
       isComplete: boolean;
-    }) => {
+    }): void => {
       if (data.isComplete) {
         setIsLoading(false);
       }
     };
 
     // Listen for message updates from main process
-    const handleMessagesUpdated = (updatedMessages: any[]) => {
+    const handleMessagesUpdated = (
+      updatedMessages: Array<{ role: string; content: unknown }>,
+    ): void => {
       // Convert CoreMessage format to our frontend Message format
-      const convertedMessages = updatedMessages.map(
-        (msg: any, index: number) => ({
+      const convertedMessages = updatedMessages.map((msg, index: number) => {
+        const contentText =
+          typeof msg.content === "string"
+            ? msg.content
+            : Array.isArray(msg.content)
+              ? msg.content.find((p: { type: string }) => p.type === "text")
+                  ?.text || ""
+              : "";
+
+        return {
           id: `msg-${index}`,
-          role: msg.role,
-          content:
-            typeof msg.content === "string"
-              ? msg.content
-              : msg.content.find((p: any) => p.type === "text")?.text || "",
+          role: msg.role as "user" | "assistant" | "system",
+          content: contentText,
           timestamp: Date.now(),
           isStreaming: false,
-        }),
-      );
+        };
+      });
       setMessages(convertedMessages);
     };
 

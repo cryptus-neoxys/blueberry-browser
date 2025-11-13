@@ -2,21 +2,23 @@ import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
-import { ArrowUp, Square, Sparkles, Plus } from "lucide-react";
-import { useChat } from "../contexts/ChatContext";
+import { ArrowUp, Plus } from "lucide-react";
+import { useChat } from "../hooks/useChat";
 import { cn } from "@common/lib/utils";
 import { Button } from "@common/components/Button";
 
 interface Message {
   id: string;
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "system";
   content: string;
   timestamp: number;
   isStreaming?: boolean;
 }
 
 // Auto-scroll hook
-const useAutoScroll = (messages: Message[]) => {
+const useAutoScroll = (
+  messages: Message[],
+): React.RefObject<HTMLDivElement | null> => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const prevCount = useRef(0);
 
@@ -59,6 +61,7 @@ const StreamingText: React.FC<{ content: string }> = ({ content }) => {
       }, 10);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [content, currentIndex]);
 
   return (
@@ -88,7 +91,7 @@ const Markdown: React.FC<{ content: string }> = ({ content }) => (
       remarkPlugins={[remarkGfm, remarkBreaks]}
       components={{
         // Custom code block styling
-        code: ({ node, className, children, ...props }) => {
+        code: ({ className, children, ...props }) => {
           const inline = !className;
           return inline ? (
             <code
@@ -176,7 +179,7 @@ const ChatInput: React.FC<{
     }
   }, [value]);
 
-  const handleSubmit = () => {
+  const handleSubmit = (): void => {
     if (value.trim() && !disabled) {
       onSend(value.trim());
       setValue("");
@@ -187,7 +190,7 @@ const ChatInput: React.FC<{
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent): void => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();

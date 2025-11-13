@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserProvider } from "./contexts/BrowserContext";
+import { BrowserProvider } from "./contexts/BrowserProvider";
 import { TabBar } from "./components/TabBar";
 import { AddressBar } from "./components/AddressBar";
 
