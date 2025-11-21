@@ -2,6 +2,8 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { createDatabase } from "../database";
 import { MemoryService } from "./MemoryService";
 
+// TODO: cryptus-neoxys - Mock the database for isolated unit tests
+// ref: https://dexie.org/docs/DexieErrors/Dexie.MissingAPIError
 describe("MemoryService", () => {
   beforeAll(async () => {
     // Ensure database is initialized before tests run
