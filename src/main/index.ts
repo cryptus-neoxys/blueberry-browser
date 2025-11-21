@@ -43,6 +43,7 @@ app.on("window-all-closed", () => {
     menu = null;
   }
 
+  // TODO: @cryptus-neoxys to ask why???
   if (process.platform !== "darwin") {
     app.quit();
   }
