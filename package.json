@@ -69,7 +69,13 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "electron",
-      "esbuild"
+      "esbuild",
+      "sharp"
+    ],
+    "ignoredBuiltDependencies": [
+      "@firebase/util",
+      "protobufjs",
+      "rxdb"
     ]
   }
 }

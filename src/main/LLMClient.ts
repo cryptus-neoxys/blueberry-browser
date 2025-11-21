@@ -5,6 +5,7 @@ import { anthropic } from "@ai-sdk/anthropic";
 import * as dotenv from "dotenv";
 import { join } from "path";
 import type { Window } from "./Window";
+import { MemoryService } from "./services/MemoryService";
 
 // Load environment variables from .env file
 dotenv.config({ path: join(__dirname, "../../.env") });
@@ -36,12 +37,14 @@ export class LLMClient {
   private readonly modelName: string;
   private readonly model: LanguageModel | null;
   private messages: CoreMessage[] = [];
+  private readonly memoryService: MemoryService;
 
   constructor(webContents: WebContents) {
     this.webContents = webContents;
     this.provider = this.getProvider();
     this.modelName = this.getModelName();
     this.model = this.initializeModel();
+    this.memoryService = new MemoryService();
 
     this.logInitializationStatus();
   }
@@ -89,14 +92,14 @@ export class LLMClient {
   private logInitializationStatus(): void {
     if (this.model) {
       console.log(
-        `✅ LLM Client initialized with ${this.provider} provider using model: ${this.modelName}`,
+        `✅ LLM Client initialized with ${this.provider} provider using model: ${this.modelName}`
       );
     } else {
       const keyName =
         this.provider === "anthropic" ? "ANTHROPIC_API_KEY" : "OPENAI_API_KEY";
       console.error(
         `❌ LLM Client initialization failed: ${keyName} not found in environment variables.\n` +
-          `Please add your API key to the .env file in the project root.`,
+          `Please add your API key to the .env file in the project root.`
       );
     }
   }
@@ -153,7 +156,7 @@ export class LLMClient {
       if (!this.model) {
         this.sendErrorMessage(
           request.messageId,
-          "LLM service is not configured. Please add your API key to the .env file.",
+          "LLM service is not configured. Please add your API key to the .env file."
         );
         return;
       }
@@ -208,7 +211,7 @@ export class LLMClient {
 
   private buildSystemPrompt(
     url: string | null,
-    pageText: string | null,
+    pageText: string | null
   ): string {
     const parts: string[] = [
       "You are a helpful AI assistant integrated into a web browser.",
@@ -227,7 +230,7 @@ export class LLMClient {
 
     parts.push(
       "\nPlease provide helpful, accurate, and contextual responses about the current webpage.",
-      "If the user asks about specific content, refer to the page content and/or screenshot provided.",
+      "If the user asks about specific content, refer to the page content and/or screenshot provided."
     );
 
     return parts.join("\n");
@@ -240,7 +243,7 @@ export class LLMClient {
 
   private async streamResponse(
     messages: CoreMessage[],
-    messageId: string,
+    messageId: string
   ): Promise<void> {
     if (!this.model) {
       throw new Error("Model not initialized");
@@ -259,7 +262,7 @@ export class LLMClient {
 
   private async processStream(
     textStream: AsyncIterable<string>,
-    messageId: string,
+    messageId: string
   ): Promise<void> {
     let accumulatedText = "";
 
@@ -301,6 +304,16 @@ export class LLMClient {
       content: accumulatedText,
       isComplete: true,
     });
+
+    // Store completed chat turn in memory
+    try {
+      await this.memoryService.addEntry(accumulatedText, "chat", {
+        messageId,
+        timestamp: Date.now(),
+      });
+    } catch (error) {
+      console.error("Failed to store chat memory entry", error);
+    }
   }
 
   private handleStreamError(error: unknown, messageId: string): void {

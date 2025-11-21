@@ -43,6 +43,25 @@ export class Tab {
     this.webContentsView.webContents.on("did-navigate-in-page", (_, url) => {
       this._url = url;
     });
+
+    this.webContentsView.webContents.on("did-finish-load", async () => {
+      try {
+        const text = await this.getTabText();
+        const title = this._title;
+        const url = this._url;
+
+        const { MemoryService } = await import("./services/MemoryService");
+        const memoryService = new MemoryService();
+
+        await memoryService.addEntry(text, "page", {
+          url,
+          title,
+          capturedAt: Date.now(),
+        });
+      } catch (error) {
+        console.error("Failed to capture page memory entry", error);
+      }
+    });
   }
 
   // Getters
@@ -91,13 +110,13 @@ export class Tab {
 
   async getTabHtml(): Promise<string> {
     return (await this.runJs(
-      "return document.documentElement.outerHTML",
+      "return document.documentElement.outerHTML"
     )) as string;
   }
 
   async getTabText(): Promise<string> {
     return (await this.runJs(
-      "return document.documentElement.innerText",
+      "return document.documentElement.innerText"
     )) as string;
   }
 
