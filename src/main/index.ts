@@ -9,6 +9,12 @@ let eventManager: EventManager | null = null;
 let menu: AppMenu | null = null;
 
 const createWindow = (): Window => {
+  // Ensure previous event manager is cleaned up
+  if (eventManager) {
+    eventManager.cleanup();
+    eventManager = null;
+  }
+
   const window = new Window();
   menu = new AppMenu(window);
   eventManager = new EventManager(window);

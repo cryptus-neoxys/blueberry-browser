@@ -92,14 +92,14 @@ export class LLMClient {
   private logInitializationStatus(): void {
     if (this.model) {
       console.log(
-        `✅ LLM Client initialized with ${this.provider} provider using model: ${this.modelName}`
+        `✅ LLM Client initialized with ${this.provider} provider using model: ${this.modelName}`,
       );
     } else {
       const keyName =
         this.provider === "anthropic" ? "ANTHROPIC_API_KEY" : "OPENAI_API_KEY";
       console.error(
         `❌ LLM Client initialization failed: ${keyName} not found in environment variables.\n` +
-          `Please add your API key to the .env file in the project root.`
+          `Please add your API key to the .env file in the project root.`,
       );
     }
   }
@@ -156,7 +156,7 @@ export class LLMClient {
       if (!this.model) {
         this.sendErrorMessage(
           request.messageId,
-          "LLM service is not configured. Please add your API key to the .env file."
+          "LLM service is not configured. Please add your API key to the .env file.",
         );
         return;
       }
@@ -199,25 +199,71 @@ export class LLMClient {
       }
     }
 
+    // Get the last user message for RAG search
+    const lastUserMessage = this.messages
+      .filter((m) => m.role === "user")
+      .pop();
+    const searchQuery =
+      typeof lastUserMessage?.content === "string"
+        ? lastUserMessage.content
+        : "";
+
+    // Retrieve relevant memory context
+    let memoryContext = "";
+    if (searchQuery) {
+      try {
+        const relevantMemories =
+          await this.memoryService.searchSimilar(searchQuery);
+        if (relevantMemories.length > 0) {
+          memoryContext = this.buildMemoryContext(relevantMemories);
+        }
+      } catch (error) {
+        console.error("Failed to retrieve memory context:", error);
+      }
+    }
+
     // Build system message
     const systemMessage: CoreMessage = {
       role: "system",
-      content: this.buildSystemPrompt(pageUrl, pageText),
+      content: this.buildSystemPrompt(pageUrl, pageText, memoryContext),
     };
 
     // Include all messages in history (system + conversation)
     return [systemMessage, ...this.messages];
   }
 
+  private buildMemoryContext(
+    memories: Array<{ content: string; similarity: number; type: string }>,
+  ): string {
+    const parts = ["\n## Relevant Context from Memory:"];
+
+    memories.forEach((memory, index) => {
+      parts.push(
+        `\n[${index + 1}] (similarity: ${memory.similarity.toFixed(3)}, type: ${memory.type})`,
+      );
+      parts.push(this.truncateText(memory.content, 500));
+    });
+
+    return parts.join("\n");
+  }
+
   private buildSystemPrompt(
     url: string | null,
-    pageText: string | null
+    pageText: string | null,
+    memoryContext: string = "",
   ): string {
     const parts: string[] = [
       "You are a helpful AI assistant integrated into a web browser.",
       "You can analyze and discuss web pages with the user.",
       "The user's messages may include screenshots of the current page as the first image.",
     ];
+
+    if (memoryContext) {
+      parts.push(memoryContext);
+      parts.push(
+        "\nUse the above context from previous interactions and browsing history when relevant to the user's query.",
+      );
+    }
 
     if (url) {
       parts.push(`\nCurrent page URL: ${url}`);
@@ -230,7 +276,7 @@ export class LLMClient {
 
     parts.push(
       "\nPlease provide helpful, accurate, and contextual responses about the current webpage.",
-      "If the user asks about specific content, refer to the page content and/or screenshot provided."
+      "If the user asks about specific content, refer to the page content and/or screenshot provided.",
     );
 
     return parts.join("\n");
@@ -243,7 +289,7 @@ export class LLMClient {
 
   private async streamResponse(
     messages: CoreMessage[],
-    messageId: string
+    messageId: string,
   ): Promise<void> {
     if (!this.model) {
       throw new Error("Model not initialized");
@@ -262,7 +308,7 @@ export class LLMClient {
 
   private async processStream(
     textStream: AsyncIterable<string>,
-    messageId: string
+    messageId: string,
   ): Promise<void> {
     let accumulatedText = "";
 

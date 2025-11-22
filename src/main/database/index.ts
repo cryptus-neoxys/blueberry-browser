@@ -1,6 +1,13 @@
-import { createRxDatabase, RxDatabase, RxCollection, addRxPlugin } from "rxdb";
-import { getRxStorageDexie } from "rxdb/plugins/storage-dexie";
+import {
+  createRxDatabase,
+  RxDatabase,
+  RxCollection,
+  addRxPlugin,
+  RxStorage,
+} from "rxdb";
+import { getRxStorageMemory } from "rxdb/plugins/storage-memory";
 import { RxDBDevModePlugin } from "rxdb/plugins/dev-mode";
+import { wrappedValidateAjvStorage } from "rxdb/plugins/validate-ajv";
 import { memorySchema, MemoryDocType } from "./schema";
 
 // Add dev-mode plugin for development
@@ -24,9 +31,17 @@ export const createDatabase = async (): Promise<MyDatabase> => {
   }
 
   dbPromise = (async () => {
+    let storage: RxStorage<any, any> = getRxStorageMemory();
+
+    if (process.env.NODE_ENV === "development") {
+      storage = wrappedValidateAjvStorage({
+        storage,
+      });
+    }
+
     const db = await createRxDatabase<MyDatabaseCollections>({
       name: "blueberrydb",
-      storage: getRxStorageDexie(),
+      storage,
     });
 
     await db.addCollections({
@@ -36,7 +51,10 @@ export const createDatabase = async (): Promise<MyDatabase> => {
     });
 
     return db;
-  })();
+  })().catch((err) => {
+    console.error("Failed to initialize database:", err);
+    throw err;
+  });
 
   return dbPromise;
 };

@@ -1,6 +1,6 @@
 import { pipeline, Pipeline } from "@xenova/transformers";
 
-type EmbeddingPipeline = Pipeline<"feature-extraction">;
+type EmbeddingPipeline = Pipeline;
 
 export class EmbeddingService {
   private static instance: EmbeddingService | null = null;
@@ -21,7 +21,7 @@ export class EmbeddingService {
     if (!this.embeddingPromise) {
       this.embeddingPromise = pipeline(
         "feature-extraction",
-        "Xenova/all-MiniLM-L6-v2"
+        "Xenova/all-MiniLM-L6-v2",
       ) as Promise<EmbeddingPipeline>;
     }
     return this.embeddingPromise;

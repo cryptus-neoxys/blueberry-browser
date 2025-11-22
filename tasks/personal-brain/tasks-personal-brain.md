@@ -21,16 +21,16 @@
   - [x] 1.2 Create `src/main/database/schema.ts` defining the memory schema (id, content, embedding, type, metadata, timestamp)
   - [x] 1.3 Create `src/main/database/index.ts` to initialize RxDB with Dexie storage adapter
   - [x] 1.4 Implement a basic `addEntry` and `queryEntries` method in a new `MemoryService` class (`src/main/services/MemoryService.ts`) to verify DB connectivity
-- [ ] 2.0 Implement Embedding Service & Data Capture
-  - [ ] 2.1 Install `@xenova/transformers`
-  - [ ] 2.2 Create `src/main/services/EmbeddingService.ts` to handle loading the model and generating embeddings
-  - [ ] 2.3 Update `MemoryService` to generate embeddings for content before saving to RxDB
-  - [ ] 2.4 Update `EventManager.ts` to listen for "chat-complete" events and call `MemoryService.addEntry`
-  - [ ] 2.5 Update `Tab.ts` or `EventManager.ts` to listen for "did-finish-load" events, extract page text, and call `MemoryService.addEntry`
-- [ ] 3.0 Integrate Memory with LLM Context (RAG) in chat SideBar
-  - [ ] 3.1 Implement vector search in `MemoryService` (using RxDB or manual cosine similarity if RxDB vector search isn't available/free) to find top-5 relevant chunks
-  - [ ] 3.2 Update `LLMClient.ts` to query `MemoryService` for relevant context based on the user's message
-  - [ ] 3.3 Prepend retrieved context to the system prompt or user message in `LLMClient.ts`
+- [x] 2.0 Implement Embedding Service & Data Capture
+  - [x] 2.1 Install `@xenova/transformers`
+  - [x] 2.2 Create `src/main/services/EmbeddingService.ts` to handle loading the model and generating embeddings
+  - [x] 2.3 Update `MemoryService` to generate embeddings for content before saving to RxDB
+  - [x] 2.4 Update `EventManager.ts` to listen for "chat-complete" events and call `MemoryService.addEntry`
+  - [x] 2.5 Update `Tab.ts` or `EventManager.ts` to listen for "did-finish-load" events, extract page text, and call `MemoryService.addEntry`
+- [x] 3.0 Integrate Memory with LLM Context (RAG) in chat SideBar
+  - [x] 3.1 Implement vector search in `MemoryService` (using RxDB or manual cosine similarity if RxDB vector search isn't available/free) to find top-5 relevant chunks
+  - [x] 3.2 Update `LLMClient.ts` to query `MemoryService` for relevant context based on the user's message
+  - [x] 3.3 Prepend retrieved context to the system prompt or user message in `LLMClient.ts`
 - [ ] 4.0 Implement Pattern Detection & Proactive Suggestions
   - [ ] 4.1 Create `src/main/services/PatternDetectionService.ts`
   - [ ] 4.2 Implement a method to analyze recent memory entries for patterns (simple heuristic or LLM-based)

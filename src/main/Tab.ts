@@ -110,14 +110,19 @@ export class Tab {
 
   async getTabHtml(): Promise<string> {
     return (await this.runJs(
-      "return document.documentElement.outerHTML"
+      "return document.documentElement.outerHTML",
     )) as string;
   }
 
   async getTabText(): Promise<string> {
-    return (await this.runJs(
-      "return document.documentElement.innerText"
-    )) as string;
+    try {
+      return (await this.runJs(
+        "return document.body ? document.body.innerText : (document.documentElement ? document.documentElement.innerText : '')",
+      )) as string;
+    } catch (error) {
+      console.warn(`Failed to extract text from tab ${this._id}:`, error);
+      return "";
+    }
   }
 
   loadURL(url: string): Promise<void> {
