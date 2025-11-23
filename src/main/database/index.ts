@@ -1,3 +1,5 @@
+import "fake-indexeddb/auto";
+
 import {
   createRxDatabase,
   RxDatabase,
@@ -5,7 +7,7 @@ import {
   addRxPlugin,
   RxStorage,
 } from "rxdb";
-import { getRxStorageMemory } from "rxdb/plugins/storage-memory";
+import { getRxStorageDexie } from "rxdb/plugins/storage-dexie";
 import { RxDBDevModePlugin } from "rxdb/plugins/dev-mode";
 import { wrappedValidateAjvStorage } from "rxdb/plugins/validate-ajv";
 import { memorySchema, MemoryDocType } from "./schema";
@@ -31,7 +33,7 @@ export const createDatabase = async (): Promise<MyDatabase> => {
   }
 
   dbPromise = (async () => {
-    let storage: RxStorage<any, any> = getRxStorageMemory();
+    let storage: RxStorage<any, any> = getRxStorageDexie();
 
     if (process.env.NODE_ENV === "development") {
       storage = wrappedValidateAjvStorage({
