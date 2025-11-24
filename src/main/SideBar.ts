@@ -106,4 +106,8 @@ export class SideBar {
   getIsVisible(): boolean {
     return this.isVisible;
   }
+
+  get webContents(): Electron.WebContents {
+    return this.webContentsView.webContents;
+  }
 }

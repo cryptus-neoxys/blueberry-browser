@@ -31,14 +31,14 @@
   - [x] 3.1 Implement vector search in `MemoryService` (using RxDB or manual cosine similarity if RxDB vector search isn't available/free) to find top-5 relevant chunks
   - [x] 3.2 Update `LLMClient.ts` to query `MemoryService` for relevant context based on the user's message
   - [x] 3.3 Prepend retrieved context to the system prompt or user message in `LLMClient.ts`
-- [ ] 4.0 Implement Pattern Detection & Proactive Suggestions
-  - [ ] 4.1 Create `src/main/services/PatternDetectionService.ts`
-  - [ ] 4.2 Implement a method to analyze recent memory entries for patterns (simple heuristic or LLM-based)
-  - [ ] 4.3 Set up a 5-minute interval in `index.ts` or `EventManager.ts` to trigger pattern detection
-  - [ ] 4.4 Also trigger pattern detection after every `MemoryService.addEntry` call
-  - [ ] 4.5 Define a "Suggestion" type and an IPC event `proactive-suggestion` to send suggestions to the renderer
-- [ ] 5.0 UI Integration & Testing
-  - [ ] 5.1 Create a `Toast` component in `src/renderer/sidebar/src/components/Toast.tsx` (or reuse existing notification system if available)
-  - [ ] 5.2 Update `SidebarApp.tsx` or a global context to listen for `proactive-suggestion` events and display the toast
-  - [ ] 5.3 Verify that clicking the toast triggers the suggested action (e.g., filling a form, navigating to a URL - _Note: Action execution logic might need to be defined in `PatternDetectionService`_)
-  - [ ] 5.4 Perform end-to-end testing: Browse -> Chat -> Verify Memory Storage -> Verify RAG Context -> Verify Proactive Suggestions
+- [x] 4.0 Implement Pattern Detection & Proactive Suggestions
+  - [x] 4.1 Create `src/main/services/PatternDetectionService.ts`
+  - [x] 4.2 Implement a method to analyze recent memory entries for patterns (simple heuristic or LLM-based)
+  - [x] 4.3 Set up a 5-minute interval in `index.ts` or `EventManager.ts` to trigger pattern detection
+  - [x] 4.4 Also trigger pattern detection after every `MemoryService.addEntry` call
+  - [x] 4.5 Define a "Suggestion" type and an IPC event `proactive-suggestion` to send suggestions to the renderer
+- [x] 5.0 UI Integration & Testing
+  - [x] 5.1 Create a `Toast` component in `src/renderer/sidebar/src/components/Toast.tsx` (or reuse existing notification system if available)
+  - [x] 5.2 Update `SidebarApp.tsx` or a global context to listen for `proactive-suggestion` events and display the toast
+  - [x] 5.3 Verify that clicking the toast triggers the suggested action (e.g., filling a form, navigating to a URL - _Note: Action execution logic might need to be defined in `PatternDetectionService`_)
+  - [x] 5.4 Perform end-to-end testing: Browse -> Chat -> Verify Memory Storage -> Verify RAG Context -> Verify Proactive Suggestions

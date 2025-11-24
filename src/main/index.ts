@@ -3,10 +3,13 @@ import { electronApp } from "@electron-toolkit/utils";
 import { Window } from "./Window";
 import { AppMenu } from "./Menu";
 import { EventManager } from "./EventManager";
+import { PatternDetectionService } from "./services/PatternDetectionService";
+import { MemoryService } from "./services/MemoryService";
 
 let mainWindow: Window | null = null;
 let eventManager: EventManager | null = null;
 let menu: AppMenu | null = null;
+let patternDetectionService: PatternDetectionService | null = null;
 
 const createWindow = (): Window => {
   // Ensure previous event manager is cleaned up
@@ -18,6 +21,33 @@ const createWindow = (): Window => {
   const window = new Window();
   menu = new AppMenu(window);
   eventManager = new EventManager(window);
+
+  // Initialize pattern detection service
+  const memoryService = new MemoryService(async () => {
+    if (patternDetectionService) {
+      await patternDetectionService.onNewEntry();
+    }
+  });
+  patternDetectionService = new PatternDetectionService(
+    memoryService,
+    eventManager,
+  );
+
+  // Set up 5-minute interval for pattern analysis
+  setInterval(
+    async () => {
+      if (patternDetectionService) {
+        const suggestions = await patternDetectionService.analyzePatterns();
+        if (suggestions.length > 0) {
+          // Emit proactive-suggestion event
+          // For now, log them
+          console.log("Proactive suggestions:", suggestions);
+        }
+      }
+    },
+    5 * 60 * 1000,
+  );
+
   return window;
 };
 

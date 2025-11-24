@@ -33,6 +33,10 @@ interface SidebarAPI {
   removeChatResponseListener: () => void;
   removeMessagesUpdatedListener: () => void;
 
+  // Proactive suggestions
+  on: (channel: string, callback: (...args: unknown[]) => void) => void;
+  off: (channel: string, callback: (...args: unknown[]) => void) => void;
+
   // Page content access
   getPageContent: () => Promise<string | null>;
   getPageText: () => Promise<string | null>;

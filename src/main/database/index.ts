@@ -33,7 +33,7 @@ export const createDatabase = async (): Promise<MyDatabase> => {
   }
 
   dbPromise = (async () => {
-    let storage: RxStorage<any, any> = getRxStorageDexie();
+    let storage: RxStorage<unknown, unknown> = getRxStorageDexie();
 
     if (process.env.NODE_ENV === "development") {
       storage = wrappedValidateAjvStorage({

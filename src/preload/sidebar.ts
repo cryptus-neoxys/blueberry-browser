@@ -50,6 +50,15 @@ const sidebarAPI = {
     electronAPI.ipcRenderer.removeAllListeners("chat-messages-updated");
   },
 
+  // Proactive suggestions
+  on: (channel: string, callback: (...args: unknown[]) => void) => {
+    electronAPI.ipcRenderer.on(channel, callback);
+  },
+
+  off: (channel: string, callback: (...args: unknown[]) => void) => {
+    electronAPI.ipcRenderer.removeListener(channel, callback);
+  },
+
   // Page content access
   getPageContent: () => electronAPI.ipcRenderer.invoke("get-page-content"),
   getPageText: () => electronAPI.ipcRenderer.invoke("get-page-text"),

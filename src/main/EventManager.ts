@@ -20,6 +20,12 @@ export class EventManager {
     this.registeredHandlers.push(channel);
   }
 
+  public sendToSidebar(channel: string, ...args: unknown[]): void {
+    if (this.mainWindow.sidebar) {
+      this.mainWindow.sidebar.webContents.send(channel, ...args);
+    }
+  }
+
   private setupEventHandlers(): void {
     // Tab management events
     this.handleTabEvents();

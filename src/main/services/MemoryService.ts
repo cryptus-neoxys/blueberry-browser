@@ -6,10 +6,12 @@ import { EmbeddingService } from "./EmbeddingService";
 export class MemoryService {
   private dbPromise: Promise<MyDatabase>;
   private embeddingService: EmbeddingService;
+  private onNewEntryCallback?: () => void;
 
-  constructor() {
+  constructor(onNewEntry?: () => void) {
     this.dbPromise = getDatabase();
     this.embeddingService = EmbeddingService.getInstance();
+    this.onNewEntryCallback = onNewEntry;
   }
 
   async addEntry(
@@ -59,6 +61,11 @@ export class MemoryService {
       stats,
       timestamp: new Date(timestamp).toISOString(),
     });
+
+    // Trigger pattern detection
+    if (this.onNewEntryCallback) {
+      this.onNewEntryCallback();
+    }
 
     return doc.toJSON() as MemoryDocType;
   }
