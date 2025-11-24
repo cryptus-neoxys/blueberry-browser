@@ -52,7 +52,7 @@ export class Tab {
       setTimeout(async () => {
         try {
           console.log(
-            `Tab ${this.id} did-finish-load, URL: ${this._url}, isLoading: ${this.webContentsView.webContents.isLoading()}`,
+            `Tab ${this.id} did-finish-load, URL: ${this._url}, isLoading: ${this.webContentsView.webContents.isLoading()}`
           );
           // Skip if URL is about:blank or similar
           if (
@@ -130,7 +130,7 @@ export class Tab {
   async getTabHtml(): Promise<string> {
     try {
       return (await this.runJs(
-        "try { return document.documentElement ? document.documentElement.outerHTML : ''; } catch(e) { return ''; }",
+        "try { return document.documentElement ? document.documentElement.outerHTML : ''; } catch(e) { return ''; }"
       )) as string;
     } catch (error) {
       console.warn(`Failed to extract HTML from tab ${this._id}:`, error);
@@ -158,7 +158,7 @@ export class Tab {
           })()
         `,
             returnByValue: true,
-          },
+          }
         );
       const text = result.result.value || "";
       return text;

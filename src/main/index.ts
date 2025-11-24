@@ -30,7 +30,7 @@ const createWindow = (): Window => {
   });
   patternDetectionService = new PatternDetectionService(
     memoryService,
-    eventManager,
+    eventManager
   );
 
   // Set up 5-minute interval for pattern analysis
@@ -45,7 +45,7 @@ const createWindow = (): Window => {
         }
       }
     },
-    5 * 60 * 1000,
+    5 * 60 * 1000
   );
 
   return window;
