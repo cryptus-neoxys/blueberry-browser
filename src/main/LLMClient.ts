@@ -5,6 +5,7 @@ import { anthropic } from "@ai-sdk/anthropic";
 import * as dotenv from "dotenv";
 import { join } from "path";
 import type { Window } from "./Window";
+import { MemoryService } from "./services/MemoryService";
 
 // Load environment variables from .env file
 dotenv.config({ path: join(__dirname, "../../.env") });
@@ -36,12 +37,14 @@ export class LLMClient {
   private readonly modelName: string;
   private readonly model: LanguageModel | null;
   private messages: CoreMessage[] = [];
+  private readonly memoryService: MemoryService;
 
   constructor(webContents: WebContents) {
     this.webContents = webContents;
     this.provider = this.getProvider();
     this.modelName = this.getModelName();
     this.model = this.initializeModel();
+    this.memoryService = new MemoryService();
 
     this.logInitializationStatus();
   }
@@ -196,25 +199,71 @@ export class LLMClient {
       }
     }
 
+    // Get the last user message for RAG search
+    const lastUserMessage = this.messages
+      .filter((m) => m.role === "user")
+      .pop();
+    const searchQuery =
+      typeof lastUserMessage?.content === "string"
+        ? lastUserMessage.content
+        : "";
+
+    // Retrieve relevant memory context
+    let memoryContext = "";
+    if (searchQuery) {
+      try {
+        const relevantMemories =
+          await this.memoryService.searchSimilar(searchQuery);
+        if (relevantMemories.length > 0) {
+          memoryContext = this.buildMemoryContext(relevantMemories);
+        }
+      } catch (error) {
+        console.error("Failed to retrieve memory context:", error);
+      }
+    }
+
     // Build system message
     const systemMessage: CoreMessage = {
       role: "system",
-      content: this.buildSystemPrompt(pageUrl, pageText),
+      content: this.buildSystemPrompt(pageUrl, pageText, memoryContext),
     };
 
     // Include all messages in history (system + conversation)
     return [systemMessage, ...this.messages];
   }
 
+  private buildMemoryContext(
+    memories: Array<{ content: string; similarity: number; type: string }>,
+  ): string {
+    const parts = ["\n## Relevant Context from Memory:"];
+
+    memories.forEach((memory, index) => {
+      parts.push(
+        `\n[${index + 1}] (similarity: ${memory.similarity.toFixed(3)}, type: ${memory.type})`,
+      );
+      parts.push(this.truncateText(memory.content, 500));
+    });
+
+    return parts.join("\n");
+  }
+
   private buildSystemPrompt(
     url: string | null,
     pageText: string | null,
+    memoryContext: string = "",
   ): string {
     const parts: string[] = [
       "You are a helpful AI assistant integrated into a web browser.",
       "You can analyze and discuss web pages with the user.",
       "The user's messages may include screenshots of the current page as the first image.",
     ];
+
+    if (memoryContext) {
+      parts.push(memoryContext);
+      parts.push(
+        "\nUse the above context from previous interactions and browsing history when relevant to the user's query.",
+      );
+    }
 
     if (url) {
       parts.push(`\nCurrent page URL: ${url}`);
@@ -301,6 +350,16 @@ export class LLMClient {
       content: accumulatedText,
       isComplete: true,
     });
+
+    // Store completed chat turn in memory
+    try {
+      await this.memoryService.addEntry(accumulatedText, "chat", {
+        messageId,
+        timestamp: Date.now(),
+      });
+    } catch (error) {
+      console.error("Failed to store chat memory entry", error);
+    }
   }
 
   private handleStreamError(error: unknown, messageId: string): void {
