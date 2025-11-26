@@ -26,6 +26,10 @@ const createSidebarAPIMock = (): SidebarAPI => ({
   getPageText: vi.fn().mockResolvedValue(null),
   getCurrentUrl: vi.fn().mockResolvedValue(null),
   getActiveTabInfo: vi.fn().mockResolvedValue(null),
+  onSuggestion: vi.fn(),
+  removeSuggestionListener: vi.fn(),
+  acceptSuggestion: vi.fn().mockResolvedValue(undefined),
+  rejectSuggestion: vi.fn().mockResolvedValue(undefined),
 });
 
 describe("MemoryViewer", () => {
@@ -81,7 +85,7 @@ describe("MemoryViewer", () => {
     fireEvent.click(openButton);
 
     expect(mockSidebarAPI.openUrlInNewTab).toHaveBeenCalledWith(
-      "https://example.com/report"
+      "https://example.com/report",
     );
   });
 });

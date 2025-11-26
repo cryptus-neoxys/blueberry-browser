@@ -38,14 +38,14 @@
 - [x] Task 3.4: Update DB schema for `suggestions` collection to support state tracking (pending/accepted/rejected) and idempotency hashing
 - [ ] Task 3.5: Refactor `PatternDetectionService` to use `ContextAssembler` and `LLMClient` for generation, and DB for state tracking
 - [ ] Task 3.6: Add unit tests for `ContextAssembler` and `PatternDetectionService` (mocking LLM) (Skipped per user request)
-- [ ] Task 4.0: Frontend: Suggestion UI
-  - [ ] 4.1 Create `SuggestionToast` component in Sidebar
-  - [ ] 4.2 Implement `useSuggestions` hook to listen for `proactive-suggestion` events
-  - [ ] 4.3 Add "Accept" and "Reject" handlers that call backend IPC
-- [ ] Task 5.0: Action Execution Engine
-  - [ ] 5.1 Implement `ActionExecutor` service in main process
-  - [ ] 5.2 Handle `navigate`, `click`, `input` actions using Electron APIs
-  - [ ] 5.3 Connect "Accept" IPC to `ActionExecutor`
+- [x] Task 4.0: Frontend: Suggestion UI
+  - [x] 4.1 Create `SuggestionToast` component in Sidebar
+  - [x] 4.2 Implement `useSuggestions` hook to listen for `proactive-suggestion` events
+  - [x] 4.3 Add "Accept" and "Reject" handlers that call backend IPC
+- [x] Task 5.0: Action Execution Engine
+  - [x] 5.1 Implement `ActionExecutor` service in main process
+  - [x] 5.2 Handle `navigate`, `click`, `input` actions using Electron APIs
+  - [x] 5.3 Connect "Accept" IPC to `ActionExecutor`
 - [ ] Task 6.0: QA, performance validation, and documentation updates
   - [ ] 6.1 Run manual QA: memory viewer performance, suggestion refresh cycles, action execution paths
   - [ ] 6.2 Add/update docs (README/PRD/task file) describing new icons, IPC APIs, and action tooling

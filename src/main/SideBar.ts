@@ -19,6 +19,22 @@ export class SideBar {
     this.llmClient = new LLMClient(this.webContentsView.webContents);
   }
 
+  public load(): void {
+    // Load the Sidebar React app
+    if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
+      // In development, load through Vite dev server
+      const sidebarUrl = new URL(
+        "/sidebar/",
+        process.env["ELECTRON_RENDERER_URL"]
+      );
+      this.webContentsView.webContents.loadURL(sidebarUrl.toString());
+    } else {
+      this.webContentsView.webContents.loadFile(
+        join(__dirname, "../renderer/sidebar.html")
+      );
+    }
+  }
+
   private createWebContentsView(): WebContentsView {
     const webContentsView = new WebContentsView({
       webPreferences: {
@@ -28,20 +44,6 @@ export class SideBar {
         sandbox: false, // Need to disable sandbox for preload to work
       },
     });
-
-    // Load the Sidebar React app
-    if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
-      // In development, load through Vite dev server
-      const sidebarUrl = new URL(
-        "/sidebar/",
-        process.env["ELECTRON_RENDERER_URL"],
-      );
-      webContentsView.webContents.loadURL(sidebarUrl.toString());
-    } else {
-      webContentsView.webContents.loadFile(
-        join(__dirname, "../renderer/sidebar.html"),
-      );
-    }
 
     return webContentsView;
   }

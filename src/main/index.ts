@@ -4,7 +4,6 @@ import { Window } from "./Window";
 import { AppMenu } from "./Menu";
 import { EventManager } from "./EventManager";
 import { PatternDetectionService } from "./services/PatternDetectionService";
-import { MemoryService } from "./services/MemoryService";
 
 let mainWindow: Window | null = null;
 let eventManager: EventManager | null = null;
@@ -23,26 +22,21 @@ const createWindow = (): Window => {
   eventManager = new EventManager(window);
 
   // Initialize pattern detection service
-  const memoryService = new MemoryService(async () => {
-    if (patternDetectionService) {
-      await patternDetectionService.onNewEntry();
-    }
-  });
   patternDetectionService = new PatternDetectionService(window, eventManager);
+
+  // Load the window content after event manager is ready
+  window.load();
 
   // Set up 5-minute interval for pattern analysis
   setInterval(
     async () => {
       if (patternDetectionService) {
-        const suggestions = await patternDetectionService.analyzePatterns();
-        if (suggestions.length > 0) {
-          // Emit proactive-suggestion event
-          // For now, log them
-          console.log("Proactive suggestions:", suggestions);
-        }
+        await patternDetectionService.analyzePatterns();
+
+        // TODO: Implement any additional logic needed after pattern analysis, inside patternDetectionService (prefer) or inside analyzePatterns
       }
     },
-    5 * 60 * 1000,
+    5 * 60 * 1000
   );
 
   return window;

@@ -4,27 +4,16 @@ import { ChatProvider } from "./contexts/ChatProvider";
 import { Chat } from "./components/Chat";
 import { MemoryViewer } from "./components/MemoryViewer";
 import { useDarkMode } from "@common/hooks/useDarkMode";
-import { ToastContainer } from "./components/Toast";
+import { SuggestionToast } from "./components/SuggestionToast";
+import { useSuggestions } from "./hooks/useSuggestions";
 import { cn } from "@common/lib/utils";
-
-interface Suggestion {
-  id: string;
-  type: "navigation" | "form-fill" | "search" | "other";
-  title: string;
-  description: string;
-  action: {
-    type: "navigate" | "fill-form" | "search";
-    data: string | Record<string, unknown>;
-  };
-  confidence: number;
-  timestamp: number;
-}
 
 type View = "chat" | "memories";
 
 const SidebarContent: React.FC = () => {
   const { isDarkMode } = useDarkMode();
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const { suggestions, acceptSuggestion, rejectSuggestion, dismissSuggestion } =
+    useSuggestions();
   const [activeView, setActiveView] = useState<View>("chat");
 
   // Apply dark mode class to the document
@@ -36,72 +25,62 @@ const SidebarContent: React.FC = () => {
     }
   }, [isDarkMode]);
 
-  // Listen for proactive suggestions
-  useEffect(() => {
-    const handleSuggestion = (...args: unknown[]): void => {
-      const newSuggestions = args[1] as Suggestion[];
-      setSuggestions((prev) => [...prev, ...newSuggestions]);
-    };
-
-    window.sidebarAPI.on("proactive-suggestion", handleSuggestion);
-
-    return () => {
-      window.sidebarAPI.off("proactive-suggestion", handleSuggestion);
-    };
-  }, []);
-
-  const handleDismiss = (id: string): void => {
-    setSuggestions((prev) => prev.filter((s) => s.id !== id));
-  };
-
-  const handleAction = (suggestion: Suggestion): void => {
-    // For now, just log. Later implement actual actions.
-    console.log("Action triggered:", suggestion);
-    // If navigate, perhaps send to topbar to navigate.
-    // For now, dismiss.
-  };
-
   return (
-    <div className="h-screen flex flex-col bg-background border-l border-border">
-      {/* Header / Navigation */}
-      <div className="flex items-center p-2 border-b border-border bg-muted/30">
-        <div className="flex p-1 bg-muted rounded-lg">
+    <div className="h-screen flex flex-col bg-background text-foreground">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 bg-primary/10 rounded-md">
+            <Brain className="w-4 h-4 text-primary" />
+          </div>
+          <h1 className="font-semibold text-sm">Blueberry AI</h1>
+        </div>
+        <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-lg">
           <button
             onClick={() => setActiveView("chat")}
             className={cn(
-              "p-2 rounded-md transition-colors",
+              "p-1.5 rounded-md transition-all",
               activeView === "chat"
                 ? "bg-background shadow-sm text-foreground"
                 : "text-muted-foreground hover:text-foreground",
             )}
             title="Chat"
           >
-            <MessageSquare size={18} />
+            <MessageSquare className="w-4 h-4" />
           </button>
           <button
             onClick={() => setActiveView("memories")}
             className={cn(
-              "p-2 rounded-md transition-colors",
+              "p-1.5 rounded-md transition-all",
               activeView === "memories"
                 ? "bg-background shadow-sm text-foreground"
                 : "text-muted-foreground hover:text-foreground",
             )}
             title="Memories"
           >
-            <Brain size={18} />
+            <Brain className="w-4 h-4" />
           </button>
         </div>
       </div>
 
+      {/* Content */}
       <div className="flex-1 overflow-hidden relative">
         {activeView === "chat" ? <Chat /> : <MemoryViewer />}
-      </div>
 
-      <ToastContainer
-        suggestions={suggestions}
-        onDismiss={handleDismiss}
-        onAction={handleAction}
-      />
+        {/* Suggestions Overlay */}
+        <div className="absolute bottom-0 right-0 p-4 pointer-events-none flex flex-col gap-2 items-end">
+          {suggestions.map((suggestion) => (
+            <div key={suggestion.id} className="pointer-events-auto">
+              <SuggestionToast
+                suggestion={suggestion}
+                onAccept={acceptSuggestion}
+                onReject={rejectSuggestion}
+                onDismiss={dismissSuggestion}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

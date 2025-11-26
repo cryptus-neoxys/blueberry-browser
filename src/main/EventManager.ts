@@ -1,7 +1,9 @@
 import { ipcMain, WebContents } from "electron";
 import type { Window } from "./Window";
+import { Workflow } from "./types";
 import { MemoryService } from "./services/MemoryService";
 import { TelemetryService } from "./services/TelemetryService";
+import { ActionExecutor } from "./services/ActionExecutor";
 
 export class EventManager {
   private mainWindow: Window;
@@ -14,7 +16,7 @@ export class EventManager {
 
   private registerHandler(
     channel: string,
-    handler: Parameters<typeof ipcMain.handle>[1],
+    handler: Parameters<typeof ipcMain.handle>[1]
   ): void {
     // Remove existing handler if any to prevent "Attempted to register a second handler" error
     ipcMain.removeHandler(channel);
@@ -46,6 +48,9 @@ export class EventManager {
 
     // Debug events
     this.handleDebugEvents();
+
+    // Suggestion events
+    this.handleSuggestionEvents();
   }
 
   private handleTabEvents(): void {
@@ -92,7 +97,7 @@ export class EventManager {
           return true;
         }
         return false;
-      },
+      }
     );
 
     this.registerHandler("go-back", () => {
@@ -158,7 +163,7 @@ export class EventManager {
           return await tab.runJs(code);
         }
         return null;
-      },
+      }
     );
 
     // Tab info
@@ -263,12 +268,42 @@ export class EventManager {
     ipcMain.on("ping", () => console.log("pong"));
   }
 
+  private handleSuggestionEvents(): void {
+    this.registerHandler("suggestion:accept", async (_, id: string) => {
+      console.log(`Accepted suggestion ${id}`);
+      // Update status in DB
+      const { getDatabase } = await import("./database");
+      const db = await getDatabase();
+      const doc = await db.suggestions.findOne(id).exec();
+      if (doc) {
+        await doc.patch({ status: "accepted" });
+
+        // Execute workflow
+        if (doc.workflow) {
+          const executor = new ActionExecutor(this.mainWindow);
+          await executor.executeWorkflow(doc.workflow as Workflow);
+        }
+      }
+    });
+
+    this.registerHandler("suggestion:reject", async (_, id: string) => {
+      console.log(`Rejected suggestion ${id}`);
+      // Update status in DB
+      const { getDatabase } = await import("./database");
+      const db = await getDatabase();
+      const doc = await db.suggestions.findOne(id).exec();
+      if (doc) {
+        await doc.patch({ status: "rejected" });
+      }
+    });
+  }
+
   private broadcastDarkMode(sender: WebContents, isDarkMode: boolean): void {
     // Send to topbar
     if (this.mainWindow.topBar.view.webContents !== sender) {
       this.mainWindow.topBar.view.webContents.send(
         "dark-mode-updated",
-        isDarkMode,
+        isDarkMode
       );
     }
 
@@ -276,7 +311,7 @@ export class EventManager {
     if (this.mainWindow.sidebar.view.webContents !== sender) {
       this.mainWindow.sidebar.view.webContents.send(
         "dark-mode-updated",
-        isDarkMode,
+        isDarkMode
       );
     }
 

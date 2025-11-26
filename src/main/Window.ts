@@ -270,4 +270,9 @@ export class Window {
   get baseWindow(): BaseWindow {
     return this._baseWindow;
   }
+
+  public load(): void {
+    this._topBar.load();
+    this._sideBar.load();
+  }
 }
