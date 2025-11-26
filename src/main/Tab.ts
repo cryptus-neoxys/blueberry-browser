@@ -41,10 +41,12 @@ export class Tab {
     // Update URL when navigation occurs
     this.webContentsView.webContents.on("did-navigate", (_, url) => {
       this._url = url;
+      void this.recordTelemetry("did-navigate");
     });
 
     this.webContentsView.webContents.on("did-navigate-in-page", (_, url) => {
       this._url = url;
+      void this.recordTelemetry("did-navigate-in-page");
     });
 
     this.webContentsView.webContents.on("did-finish-load", async () => {
@@ -52,7 +54,7 @@ export class Tab {
       setTimeout(async () => {
         try {
           console.log(
-            `Tab ${this.id} did-finish-load, URL: ${this._url}, isLoading: ${this.webContentsView.webContents.isLoading()}`
+            `Tab ${this.id} did-finish-load, URL: ${this._url}, isLoading: ${this.webContentsView.webContents.isLoading()}`,
           );
           // Skip if URL is about:blank or similar
           if (
@@ -76,6 +78,10 @@ export class Tab {
             capturedAt: Date.now(),
           });
           console.log(`Captured memory entry for ${url}`);
+
+          void this.recordTelemetry("memory-captured", {
+            contentLength: text.length,
+          });
         } catch (error) {
           console.error("Failed to capture page memory entry", error);
         }
@@ -130,7 +136,7 @@ export class Tab {
   async getTabHtml(): Promise<string> {
     try {
       return (await this.runJs(
-        "try { return document.documentElement ? document.documentElement.outerHTML : ''; } catch(e) { return ''; }"
+        "try { return document.documentElement ? document.documentElement.outerHTML : ''; } catch(e) { return ''; }",
       )) as string;
     } catch (error) {
       console.warn(`Failed to extract HTML from tab ${this._id}:`, error);
@@ -158,7 +164,7 @@ export class Tab {
           })()
         `,
             returnByValue: true,
-          }
+          },
         );
       const text = result.result.value || "";
       return text;
@@ -195,5 +201,25 @@ export class Tab {
 
   destroy(): void {
     this.webContentsView.webContents.close();
+  }
+
+  private async recordTelemetry(
+    eventType: string,
+    metadata: Record<string, unknown> = {},
+  ): Promise<void> {
+    try {
+      const { TelemetryService } = await import("./services/TelemetryService");
+      const telemetryService = new TelemetryService();
+      await telemetryService.recordEvent({
+        tabId: this._id,
+        title: this._title,
+        url: this._url,
+        eventType,
+        metadata,
+        lastActiveAt: Date.now(),
+      });
+    } catch (error) {
+      console.error("Failed to record telemetry", error);
+    }
   }
 }

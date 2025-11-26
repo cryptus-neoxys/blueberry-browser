@@ -1,5 +1,7 @@
 import { ipcMain, WebContents } from "electron";
 import type { Window } from "./Window";
+import { MemoryService } from "./services/MemoryService";
+import { TelemetryService } from "./services/TelemetryService";
 
 export class EventManager {
   private mainWindow: Window;
@@ -12,7 +14,7 @@ export class EventManager {
 
   private registerHandler(
     channel: string,
-    handler: Parameters<typeof ipcMain.handle>[1]
+    handler: Parameters<typeof ipcMain.handle>[1],
   ): void {
     // Remove existing handler if any to prevent "Attempted to register a second handler" error
     ipcMain.removeHandler(channel);
@@ -35,6 +37,9 @@ export class EventManager {
 
     // Page content events
     this.handlePageContentEvents();
+
+    // Memory viewer / telemetry events
+    this.handleMemoryViewerEvents();
 
     // Dark mode events
     this.handleDarkModeEvents();
@@ -87,7 +92,7 @@ export class EventManager {
           return true;
         }
         return false;
-      }
+      },
     );
 
     this.registerHandler("go-back", () => {
@@ -153,7 +158,7 @@ export class EventManager {
           return await tab.runJs(code);
         }
         return null;
-      }
+      },
     );
 
     // Tab info
@@ -234,6 +239,18 @@ export class EventManager {
     });
   }
 
+  private handleMemoryViewerEvents(): void {
+    this.registerHandler("memories:list", async (_, options) => {
+      const memoryService = new MemoryService();
+      return memoryService.listEntries(options);
+    });
+
+    this.registerHandler("telemetry:list", async (_, options) => {
+      const telemetryService = new TelemetryService();
+      return telemetryService.listEvents(options);
+    });
+  }
+
   private handleDarkModeEvents(): void {
     // Dark mode broadcasting
     ipcMain.on("dark-mode-changed", (event, isDarkMode) => {
@@ -251,7 +268,7 @@ export class EventManager {
     if (this.mainWindow.topBar.view.webContents !== sender) {
       this.mainWindow.topBar.view.webContents.send(
         "dark-mode-updated",
-        isDarkMode
+        isDarkMode,
       );
     }
 
@@ -259,7 +276,7 @@ export class EventManager {
     if (this.mainWindow.sidebar.view.webContents !== sender) {
       this.mainWindow.sidebar.view.webContents.send(
         "dark-mode-updated",
-        isDarkMode
+        isDarkMode,
       );
     }
 

@@ -4,7 +4,12 @@ import { createRxDatabase, RxDatabase, RxCollection, addRxPlugin } from "rxdb";
 import { getRxStorageDexie, RxStorageDexie } from "rxdb/plugins/storage-dexie";
 import { RxDBDevModePlugin } from "rxdb/plugins/dev-mode";
 import { wrappedValidateAjvStorage } from "rxdb/plugins/validate-ajv";
-import { memorySchema, MemoryDocType } from "./schema";
+import {
+  memorySchema,
+  MemoryDocType,
+  telemetrySchema,
+  TelemetryDocType,
+} from "./schema";
 
 // Add dev-mode plugin for development
 if (process.env.NODE_ENV === "development") {
@@ -13,8 +18,11 @@ if (process.env.NODE_ENV === "development") {
 
 export type MemoryCollection = RxCollection<MemoryDocType>;
 
+export type TelemetryCollection = RxCollection<TelemetryDocType>;
+
 export type MyDatabaseCollections = {
   memories: MemoryCollection;
+  telemetry: TelemetryCollection;
 };
 
 export type MyDatabase = RxDatabase<MyDatabaseCollections>;
@@ -43,6 +51,9 @@ export const createDatabase = async (): Promise<MyDatabase> => {
     await db.addCollections({
       memories: {
         schema: memorySchema,
+      },
+      telemetry: {
+        schema: telemetrySchema,
       },
     });
 

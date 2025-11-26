@@ -59,6 +59,12 @@ const sidebarAPI = {
     electronAPI.ipcRenderer.removeListener(channel, callback);
   },
 
+  // Memory + telemetry viewers
+  listMemories: (options?: unknown) =>
+    electronAPI.ipcRenderer.invoke("memories:list", options),
+  listTelemetry: (options?: unknown) =>
+    electronAPI.ipcRenderer.invoke("telemetry:list", options),
+
   // Page content access
   getPageContent: () => electronAPI.ipcRenderer.invoke("get-page-content"),
   getPageText: () => electronAPI.ipcRenderer.invoke("get-page-text"),

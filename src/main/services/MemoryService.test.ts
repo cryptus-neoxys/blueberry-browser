@@ -34,4 +34,28 @@ describe("MemoryService", () => {
     expect(entries.length).toBeGreaterThanOrEqual(2);
     expect(entries[0].timestamp).toBeGreaterThanOrEqual(entries[1].timestamp);
   });
+
+  it("should filter memory entries by type", async () => {
+    const service = new MemoryService();
+
+    await service.addEntry("page entry", "page");
+    await service.addEntry("chat entry", "chat");
+
+    const result = await service.listEntries({ type: "page" });
+
+    expect(result.entries.every((entry) => entry.type === "page")).toBe(true);
+    expect(result.total).toBeGreaterThanOrEqual(result.entries.length);
+  });
+
+  it("should search memory entries by content", async () => {
+    const service = new MemoryService();
+
+    await service.addEntry("This is a unique needle", "chat");
+    await service.addEntry("Completely different text", "chat");
+
+    const result = await service.listEntries({ search: "needle" });
+
+    expect(result.entries.length).toBeGreaterThanOrEqual(1);
+    expect(result.entries[0].content).toContain("needle");
+  });
 });

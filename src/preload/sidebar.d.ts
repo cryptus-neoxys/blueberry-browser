@@ -37,6 +37,10 @@ interface SidebarAPI {
   on: (channel: string, callback: (...args: unknown[]) => void) => void;
   off: (channel: string, callback: (...args: unknown[]) => void) => void;
 
+  // Memory + telemetry viewers
+  listMemories: (options?: unknown) => Promise<unknown>;
+  listTelemetry: (options?: unknown) => Promise<unknown>;
+
   // Page content access
   getPageContent: () => Promise<string | null>;
   getPageText: () => Promise<string | null>;
