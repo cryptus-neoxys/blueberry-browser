@@ -31,22 +31,22 @@
   - [x] 2.2 Implement paginated list view with filters and search UI wired to IPC APIs
   - [x] 2.3 Create detail view (drawer/modal) showing full memory entry, metadata, and open-in-tab link
   - [x] 2.4 Add empty/error/loading states and unit/UI tests
-- [ ] 3.0 Enhance suggestion engine (PatternDetectionService) and telemetry ingestion
-  - [ ] 3.1 Capture tab telemetry (last 500+ events) and store with retention rules
-  - [ ] 3.2 Expand pattern heuristics + LLM prompts to generate structured suggestions referencing capability manifest
-  - [ ] 3.3 Rank suggestions by confidence/benefit and map to memory/telemetry IDs for traceability
-  - [ ] 3.4 Add tests covering new heuristics and data pipelines
-- [ ] 4.0 Implement actionable suggestion panel, confirmation UX, and IPC plumbing
-  - [ ] 4.1 Add sidebar icon + panel listing suggestions with confidence badges and trace links
-  - [ ] 4.2 Build review modal showing planned steps, affected tabs/forms, and data sources
-  - [ ] 4.3 Wire approve/cancel flow via IPC to main process; include status updates in chat/suggestions panel
-  - [ ] 4.4 Handle errors + dismissed suggestions, add accompanying tests
-- [ ] 5.0 Create action execution framework, capability manifest, and audit logging
-  - [ ] 5.1 Define JSON schema + manifest of supported capabilities (tab grouping, closing, form fill)
-  - [ ] 5.2 Implement `ActionExecutor` service with validation, execution, and rollback hooks
-  - [ ] 5.3 Log every action (request, approval, outcome) to RxDB audit collection and expose queries for UI
-  - [ ] 5.4 Cover executor + manifest with automated tests and mocked browser APIs
-- [ ] 6.0 QA, performance validation, and documentation updates
+- [ ] 3.0 Implement Contextual Workflow Automation Engine (formerly Pattern Detection)
+  - [x] 3.1 Capture tab telemetry (last 500+ events) and store with retention rules
+- [x] Task 3.2: Implement `ContextAssembler` service to aggregate open tabs and telemetry
+- [x] Task 3.3: Configure `LLMClient` with Zod schema for `Workflow` generation
+- [x] Task 3.4: Update DB schema for `suggestions` collection to support state tracking (pending/accepted/rejected) and idempotency hashing
+- [ ] Task 3.5: Refactor `PatternDetectionService` to use `ContextAssembler` and `LLMClient` for generation, and DB for state tracking
+- [ ] Task 3.6: Add unit tests for `ContextAssembler` and `PatternDetectionService` (mocking LLM) (Skipped per user request)
+- [ ] Task 4.0: Frontend: Suggestion UI
+  - [ ] 4.1 Create `SuggestionToast` component in Sidebar
+  - [ ] 4.2 Implement `useSuggestions` hook to listen for `proactive-suggestion` events
+  - [ ] 4.3 Add "Accept" and "Reject" handlers that call backend IPC
+- [ ] Task 5.0: Action Execution Engine
+  - [ ] 5.1 Implement `ActionExecutor` service in main process
+  - [ ] 5.2 Handle `navigate`, `click`, `input` actions using Electron APIs
+  - [ ] 5.3 Connect "Accept" IPC to `ActionExecutor`
+- [ ] Task 6.0: QA, performance validation, and documentation updates
   - [ ] 6.1 Run manual QA: memory viewer performance, suggestion refresh cycles, action execution paths
   - [ ] 6.2 Add/update docs (README/PRD/task file) describing new icons, IPC APIs, and action tooling
   - [ ] 6.3 Ensure lint/tests pass, collect artifacts/screenshots for release notes
