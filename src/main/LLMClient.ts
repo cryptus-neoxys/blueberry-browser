@@ -1,11 +1,19 @@
 import { WebContents } from "electron";
-import { streamText, type LanguageModel, type CoreMessage } from "ai";
+import {
+  streamText,
+  generateObject,
+  type LanguageModel,
+  type CoreMessage,
+} from "ai";
 import { openai } from "@ai-sdk/openai";
 import { anthropic } from "@ai-sdk/anthropic";
+import { z } from "zod";
 import * as dotenv from "dotenv";
 import { join } from "path";
 import type { Window } from "./Window";
 import { MemoryService } from "./services/MemoryService";
+import { ContextSnapshot } from "./services/ContextAssembler";
+import { Workflow } from "./types";
 
 // Load environment variables from .env file
 dotenv.config({ path: join(__dirname, "../../.env") });
@@ -52,6 +60,84 @@ export class LLMClient {
   // Set the window reference after construction to avoid circular dependencies
   setWindow(window: Window): void {
     this.window = window;
+  }
+
+  async analyzeContextAndSuggestWorkflow(
+    context: ContextSnapshot,
+  ): Promise<Workflow | null> {
+    if (!this.model) return null;
+
+    const workflowSchema = z.object({
+      id: z.string().describe("Unique identifier for the workflow"),
+      title: z.string().describe("Short, action-oriented title"),
+      description: z
+        .string()
+        .describe("Clear explanation of what this automation does"),
+      triggerContext: z
+        .string()
+        .describe("Why this workflow is being suggested based on the context"),
+      isValid: z
+        .boolean()
+        .describe(
+          "Set to true if a valid, helpful workflow was found. Set to false if no pattern was detected.",
+        ),
+      actions: z.array(
+        z.object({
+          type: z.enum(["navigate", "click", "input", "wait"]),
+          target: z
+            .string()
+            .optional()
+            .describe("URL for navigate, CSS selector for click/input"),
+          value: z.string().optional().describe("Text to input"),
+          description: z
+            .string()
+            .describe("Human-readable description of this step"),
+        }),
+      ),
+    });
+
+    try {
+      const { object } = await generateObject({
+        model: this.model,
+        schema: workflowSchema,
+        system: `
+You are the "Workflow Analyst" for a smart browser. Your goal is to detect repetitive patterns or helpful automations based on the user's current context.
+
+AVAILABLE ACTIONS:
+1. navigate(url): Open a specific URL.
+2. click(selector): Click an element on the page.
+3. input(selector, value): Type text into a field.
+4. wait(ms): Pause execution.
+
+ANALYSIS GUIDELINES:
+- Look for "Research Sessions": If the user has multiple tabs open about a topic, suggest opening related resources or organizing them.
+- Look for "Form Filling": If the user is on a login/signup page, suggest filling known credentials (if safe) or navigating to the dashboard.
+- Look for "Daily Routines": If the user opens specific sites together, suggest opening them all at once.
+
+OUTPUT RULES:
+- If you find a helpful pattern, set 'isValid' to true and populate 'actions'.
+- If the context is random or no clear pattern exists, set 'isValid' to false and return an empty action list.
+- Be conservative. Only suggest workflows that clearly save time.
+        `,
+        prompt: `
+Analyze this context:
+OPEN TABS:
+${JSON.stringify(context.openTabs, null, 2)}
+
+RECENT TELEMETRY (Last 5 mins):
+${JSON.stringify(context.recentTelemetry, null, 2)}
+        `,
+      });
+
+      if (!object.isValid) {
+        return null;
+      }
+
+      return object as Workflow;
+    } catch (error) {
+      console.error("Failed to generate workflow suggestion:", error);
+      return null;
+    }
   }
 
   private getProvider(): LLMProvider {

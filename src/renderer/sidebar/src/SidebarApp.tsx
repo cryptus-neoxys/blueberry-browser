@@ -72,7 +72,7 @@ const SidebarContent: React.FC = () => {
               "p-2 rounded-md transition-colors",
               activeView === "chat"
                 ? "bg-background shadow-sm text-foreground"
-                : "text-muted-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
             title="Chat"
           >
@@ -84,7 +84,7 @@ const SidebarContent: React.FC = () => {
               "p-2 rounded-md transition-colors",
               activeView === "memories"
                 ? "bg-background shadow-sm text-foreground"
-                : "text-muted-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
             title="Memories"
           >

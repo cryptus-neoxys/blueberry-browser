@@ -48,7 +48,7 @@ interface SidebarAPI {
   // Memory + telemetry viewers
   listMemories: (options?: MemoryListOptions) => Promise<MemoryListResult>;
   listTelemetry: (
-    options?: TelemetryListOptions
+    options?: TelemetryListOptions,
   ) => Promise<TelemetryListResult>;
   openUrlInNewTab: (url: string) => Promise<unknown>;
 

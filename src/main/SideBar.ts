@@ -80,6 +80,10 @@ export class SideBar {
     return this.llmClient;
   }
 
+  get webContents(): WebContentsView["webContents"] {
+    return this.webContentsView.webContents;
+  }
+
   show(): void {
     this.isVisible = true;
     this.setupBounds();
@@ -105,9 +109,5 @@ export class SideBar {
 
   getIsVisible(): boolean {
     return this.isVisible;
-  }
-
-  get webContents(): Electron.WebContents {
-    return this.webContentsView.webContents;
   }
 }

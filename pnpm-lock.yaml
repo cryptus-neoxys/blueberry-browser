@@ -10,10 +10,10 @@ importers:
     dependencies:
       '@ai-sdk/anthropic':
         specifier: ^2.0.17
-        version: 2.0.45(zod@4.1.12)
+        version: 2.0.45(zod@4.1.13)
       '@ai-sdk/openai':
         specifier: ^2.0.30
-        version: 2.0.71(zod@4.1.12)
+        version: 2.0.71(zod@4.1.13)
       '@electron-toolkit/preload':
         specifier: ^3.0.2
         version: 3.0.2(electron@37.10.2)
@@ -28,7 +28,7 @@ importers:
         version: 2.17.2
       ai:
         specifier: ^5.0.44
-        version: 5.0.98(zod@4.1.12)
+        version: 5.0.98(zod@4.1.13)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -59,6 +59,9 @@ importers:
       rxjs:
         specifier: ^7.8.2
         version: 7.8.2
+      zod:
+        specifier: ^4.1.13
+        version: 4.1.13
     devDependencies:
       '@electron-toolkit/eslint-config-prettier':
         specifier: ^3.0.0
@@ -4505,8 +4508,8 @@ packages:
     resolution: {integrity: sha512-9qv4rlDiopXg4E69k+vMHjNN63YFMe9sZMrdlvKnCjlCRWeCBswPPMPUfx+ipsAWq1LXHe70RcbaHdJJpS6hyQ==}
     engines: {node: '>= 10'}
 
-  zod@4.1.12:
-    resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
+  zod@4.1.13:
+    resolution: {integrity: sha512-AvvthqfqrAhNH9dnfmrfKzX5upOdjUVJYFqNSlkmGf64gRaTzlPwz99IHYnVs28qYAybvAlBV+H7pn0saFY4Ig==}
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
@@ -4519,31 +4522,31 @@ snapshots:
 
   '@adobe/css-tools@4.4.4': {}
 
-  '@ai-sdk/anthropic@2.0.45(zod@4.1.12)':
+  '@ai-sdk/anthropic@2.0.45(zod@4.1.13)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.17(zod@4.1.12)
-      zod: 4.1.12
+      '@ai-sdk/provider-utils': 3.0.17(zod@4.1.13)
+      zod: 4.1.13
 
-  '@ai-sdk/gateway@2.0.13(zod@4.1.12)':
+  '@ai-sdk/gateway@2.0.13(zod@4.1.13)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.17(zod@4.1.12)
+      '@ai-sdk/provider-utils': 3.0.17(zod@4.1.13)
       '@vercel/oidc': 3.0.5
-      zod: 4.1.12
+      zod: 4.1.13
 
-  '@ai-sdk/openai@2.0.71(zod@4.1.12)':
+  '@ai-sdk/openai@2.0.71(zod@4.1.13)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.17(zod@4.1.12)
-      zod: 4.1.12
+      '@ai-sdk/provider-utils': 3.0.17(zod@4.1.13)
+      zod: 4.1.13
 
-  '@ai-sdk/provider-utils@3.0.17(zod@4.1.12)':
+  '@ai-sdk/provider-utils@3.0.17(zod@4.1.13)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@standard-schema/spec': 1.0.0
       eventsource-parser: 3.0.6
-      zod: 4.1.12
+      zod: 4.1.13
 
   '@ai-sdk/provider@2.0.0':
     dependencies:
@@ -5868,13 +5871,13 @@ snapshots:
       clean-stack: 2.2.0
       indent-string: 4.0.0
 
-  ai@5.0.98(zod@4.1.12):
+  ai@5.0.98(zod@4.1.13):
     dependencies:
-      '@ai-sdk/gateway': 2.0.13(zod@4.1.12)
+      '@ai-sdk/gateway': 2.0.13(zod@4.1.13)
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.17(zod@4.1.12)
+      '@ai-sdk/provider-utils': 3.0.17(zod@4.1.13)
       '@opentelemetry/api': 1.9.0
-      zod: 4.1.12
+      zod: 4.1.13
 
   ajv-formats@3.0.1(ajv@8.17.1):
     optionalDependencies:
@@ -9801,6 +9804,6 @@ snapshots:
       compress-commons: 4.1.2
       readable-stream: 3.6.2
 
-  zod@4.1.12: {}
+  zod@4.1.13: {}
 
   zwitch@2.0.4: {}

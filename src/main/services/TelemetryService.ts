@@ -24,7 +24,7 @@ export interface TelemetryListResult {
 }
 
 const DEFAULT_LIMIT = 100;
-const MAX_RETENTION = 2000;
+const MAX_RETENTION = 500;
 
 export interface TelemetryServiceOptions {
   maxRetention?: number;
@@ -58,7 +58,7 @@ export class TelemetryService {
   }
 
   async listEvents(
-    options: TelemetryListOptions = {}
+    options: TelemetryListOptions = {},
   ): Promise<TelemetryListResult> {
     const db = await this.dbPromise;
     const limit = options.limit ?? DEFAULT_LIMIT;
@@ -85,6 +85,22 @@ export class TelemetryService {
       total,
       hasMore: offset + limit < total,
     };
+  }
+
+  async getRecentEvents(durationMs: number): Promise<TelemetryDocType[]> {
+    const db = await this.dbPromise;
+    const since = Date.now() - durationMs;
+
+    const docs = await db.telemetry
+      .find({
+        selector: {
+          createdAt: { $gte: since },
+        },
+        sort: [{ createdAt: "desc" }],
+      })
+      .exec();
+
+    return docs.map((doc) => doc.toJSON() as TelemetryDocType);
   }
 
   private async enforceRetention(): Promise<void> {

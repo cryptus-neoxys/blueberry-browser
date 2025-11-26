@@ -9,6 +9,8 @@ import {
   MemoryDocType,
   telemetrySchema,
   TelemetryDocType,
+  suggestionSchema,
+  SuggestionDocType,
 } from "./schema";
 
 // Add dev-mode plugin for development
@@ -20,9 +22,12 @@ export type MemoryCollection = RxCollection<MemoryDocType>;
 
 export type TelemetryCollection = RxCollection<TelemetryDocType>;
 
+export type SuggestionCollection = RxCollection<SuggestionDocType>;
+
 export type MyDatabaseCollections = {
   memories: MemoryCollection;
   telemetry: TelemetryCollection;
+  suggestions: SuggestionCollection;
 };
 
 export type MyDatabase = RxDatabase<MyDatabaseCollections>;
@@ -54,6 +59,9 @@ export const createDatabase = async (): Promise<MyDatabase> => {
       },
       telemetry: {
         schema: telemetrySchema,
+      },
+      suggestions: {
+        schema: suggestionSchema,
       },
     });
 

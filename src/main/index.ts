@@ -28,10 +28,7 @@ const createWindow = (): Window => {
       await patternDetectionService.onNewEntry();
     }
   });
-  patternDetectionService = new PatternDetectionService(
-    memoryService,
-    eventManager,
-  );
+  patternDetectionService = new PatternDetectionService(window, eventManager);
 
   // Set up 5-minute interval for pattern analysis
   setInterval(

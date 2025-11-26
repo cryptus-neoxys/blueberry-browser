@@ -38,7 +38,7 @@ const sidebarAPI = {
 
   onMessagesUpdated: (callback: (messages: CoreMessage[]) => void) => {
     electronAPI.ipcRenderer.on("chat-messages-updated", (_, messages) =>
-      callback(messages)
+      callback(messages),
     );
   },
 
