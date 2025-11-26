@@ -83,12 +83,16 @@ export class LLMClient {
         ),
       actions: z.array(
         z.object({
-          type: z.enum(["navigate", "click", "input", "wait"]),
+          type: z.enum(["navigate", "click", "input", "wait", "reorder-tabs"]),
           target: z
             .string()
             .optional()
             .describe("URL for navigate, CSS selector for click/input"),
           value: z.string().optional().describe("Text to input"),
+          payload: z
+            .record(z.string(), z.unknown())
+            .optional()
+            .describe("Additional data for actions like reorder-tabs"),
           description: z
             .string()
             .describe("Human-readable description of this step"),
@@ -108,16 +112,19 @@ AVAILABLE ACTIONS:
 2. click(selector): Click an element on the page.
 3. input(selector, value): Type text into a field.
 4. wait(ms): Pause execution.
+5. reorder-tabs(payload): Reorder the open tabs. Payload should include 'newOrder' as an array of tab IDs in the desired order.
 
 ANALYSIS GUIDELINES:
 - Look for "Research Sessions": If the user has multiple tabs open about a topic, suggest opening related resources or organizing them.
 - Look for "Form Filling": If the user is on a login/signup page, suggest filling known credentials (if safe) or navigating to the dashboard.
 - Look for "Daily Routines": If the user opens specific sites together, suggest opening them all at once.
+- Look for "Tab Clutter": If the user has many tabs from the same domain scattered, suggest reordering them to group by domain (e.g., all GitHub tabs together).
 
 OUTPUT RULES:
 - If you find a helpful pattern, set 'isValid' to true and populate 'actions'.
 - If the context is random or no clear pattern exists, set 'isValid' to false and return an empty action list.
 - Be conservative. Only suggest workflows that clearly save time.
+- For reorder-tabs, provide the newOrder as an array of tab IDs, grouping related tabs together (e.g., by domain).
         `,
         prompt: `
 Analyze this context:

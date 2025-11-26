@@ -1,9 +1,15 @@
-export type ActionType = "navigate" | "click" | "input" | "wait";
+export type ActionType =
+  | "navigate"
+  | "click"
+  | "input"
+  | "wait"
+  | "reorder-tabs";
 
 export interface Action {
   type: ActionType;
   target?: string; // URL for navigate, selector for click/input
   value?: string; // Value for input
+  payload?: Record<string, unknown>; // Additional data for actions like reorder-tabs
   description: string;
 }
 

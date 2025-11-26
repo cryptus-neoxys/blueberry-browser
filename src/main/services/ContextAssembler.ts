@@ -1,11 +1,13 @@
 import { Window } from "../Window";
 import { TelemetryService } from "./TelemetryService";
 import { TelemetryDocType } from "../database/schema";
+import { extractDomain } from "../utils/domainExtractor";
 
 export interface TabContext {
   id: string;
   title: string;
   url: string;
+  domain: string;
   isActive: boolean;
 }
 
@@ -46,6 +48,7 @@ export class ContextAssembler {
       id: tab.id,
       title: tab.title,
       url: tab.url,
+      domain: extractDomain(tab.url),
       isActive: tab.id === activeTab?.id,
     }));
   }

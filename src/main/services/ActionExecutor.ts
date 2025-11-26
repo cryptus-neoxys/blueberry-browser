@@ -83,6 +83,17 @@ export class ActionExecutor {
           break;
         }
 
+        case "reorder-tabs":
+          if (action.payload?.newOrder) {
+            const success = this.window.reorderTabs(
+              action.payload.newOrder as string[],
+            );
+            if (!success) {
+              console.warn("Failed to reorder tabs: invalid order provided");
+            }
+          }
+          break;
+
         default:
           console.warn(`Unknown action type: ${action.type}`);
       }

@@ -8,6 +8,7 @@ export class Window {
   private tabsMap: Map<string, Tab> = new Map();
   private activeTabId: string | null = null;
   private tabCounter: number = 0;
+  private tabOrder: string[] = [];
   private _topBar: TopBar;
   private _sideBar: SideBar;
 
@@ -81,7 +82,7 @@ export class Window {
   }
 
   get allTabs(): Tab[] {
-    return Array.from(this.tabsMap.values());
+    return this.tabOrder.map((id) => this.tabsMap.get(id)!).filter(Boolean);
   }
 
   get tabCount(): number {
@@ -107,6 +108,7 @@ export class Window {
 
     // Store the tab
     this.tabsMap.set(tabId, tab);
+    this.tabOrder.push(tabId);
 
     // If this is the first tab, make it active
     if (this.tabsMap.size === 1) {
@@ -133,6 +135,7 @@ export class Window {
 
     // Remove from our tabs map
     this.tabsMap.delete(tabId);
+    this.tabOrder = this.tabOrder.filter((id) => id !== tabId);
 
     // If this was the active tab, switch to another tab
     if (this.activeTabId === tabId) {
@@ -147,6 +150,28 @@ export class Window {
     if (this.tabsMap.size === 0) {
       this._baseWindow.close();
     }
+
+    return true;
+  }
+
+  reorderTabs(newOrder: string[]): boolean {
+    // Validate that all IDs in newOrder exist and are unique
+    const existingIds = new Set(this.tabsMap.keys());
+    const uniqueNewOrder = [...new Set(newOrder)];
+
+    if (
+      uniqueNewOrder.length !== newOrder.length ||
+      !newOrder.every((id) => existingIds.has(id))
+    ) {
+      return false;
+    }
+
+    this.tabOrder = newOrder;
+
+    // Emit event to TopBar to refresh UI
+    this._topBar.webContents.send("tabs-reordered", {
+      newOrder: this.tabOrder,
+    });
 
     return true;
   }

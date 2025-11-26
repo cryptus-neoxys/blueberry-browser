@@ -25,6 +25,21 @@ export const BrowserProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
+  useEffect(() => {
+    const handleTabsReordered = (): void => {
+      refreshTabs();
+    };
+
+    window.electron.ipcRenderer.on("tabs-reordered", handleTabsReordered);
+
+    return () => {
+      window.electron.ipcRenderer.removeListener(
+        "tabs-reordered",
+        handleTabsReordered,
+      );
+    };
+  }, [refreshTabs]);
+
   const createTab = useCallback(
     async (url?: string) => {
       setIsLoading(true);

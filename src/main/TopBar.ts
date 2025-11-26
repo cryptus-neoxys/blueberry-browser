@@ -1,5 +1,5 @@
 import { is } from "@electron-toolkit/utils";
-import { BaseWindow, WebContentsView } from "electron";
+import { BaseWindow, WebContentsView, WebContents } from "electron";
 import { join } from "path";
 
 export class TopBar {
@@ -58,5 +58,9 @@ export class TopBar {
 
   get view(): WebContentsView {
     return this.webContentsView;
+  }
+
+  get webContents(): WebContents {
+    return this.webContentsView.webContents;
   }
 }
