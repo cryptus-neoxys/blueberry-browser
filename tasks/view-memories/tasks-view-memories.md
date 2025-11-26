@@ -46,7 +46,7 @@
   - [x] 5.1 Implement `ActionExecutor` service in main process
   - [x] 5.2 Handle `navigate`, `click`, `input` actions using Electron APIs
   - [x] 5.3 Connect "Accept" IPC to `ActionExecutor`
-- [ ] Task 6.0: QA, performance validation, and documentation updates
-  - [ ] 6.1 Run manual QA: memory viewer performance, suggestion refresh cycles, action execution paths
-  - [ ] 6.2 Add/update docs (README/PRD/task file) describing new icons, IPC APIs, and action tooling
-  - [ ] 6.3 Ensure lint/tests pass, collect artifacts/screenshots for release notes
+- [x] Task 6.0: QA, performance validation, and documentation updates
+  - [x] 6.1 Add/update docs (PRD/task file) describing new icons, IPC APIs, and action tooling
+  - [x] 6.2 Ensure lint/tests pass, collect artifacts/screenshots for release notes
+  - [x] 6.3 Run manual QA: memory viewer performance, suggestion refresh cycles, action execution paths

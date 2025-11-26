@@ -39,12 +39,17 @@ export class ActionExecutor {
           if (action.target) {
             await activeTab.runJs(`
               (() => {
-                const el = document.querySelector('${action.target}');
-                if (el) {
-                  el.click();
-                  return true;
+                try {
+                  const el = document.querySelector(${JSON.stringify(action.target)});
+                  if (el) {
+                    el.click();
+                    return true;
+                  }
+                  return false;
+                } catch (e) {
+                  console.error("ActionExecutor click error:", e);
+                  return false;
                 }
-                return false;
               })()
             `);
           }
@@ -54,14 +59,19 @@ export class ActionExecutor {
           if (action.target && action.value) {
             await activeTab.runJs(`
               (() => {
-                const el = document.querySelector('${action.target}');
-                if (el) {
-                  el.value = '${action.value}';
-                  el.dispatchEvent(new Event('input', { bubbles: true }));
-                  el.dispatchEvent(new Event('change', { bubbles: true }));
-                  return true;
+                try {
+                  const el = document.querySelector(${JSON.stringify(action.target)});
+                  if (el) {
+                    el.value = ${JSON.stringify(action.value)};
+                    el.dispatchEvent(new Event('input', { bubbles: true }));
+                    el.dispatchEvent(new Event('change', { bubbles: true }));
+                    return true;
+                  }
+                  return false;
+                } catch (e) {
+                  console.error("ActionExecutor input error:", e);
+                  return false;
                 }
-                return false;
               })()
             `);
           }

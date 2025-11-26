@@ -36,7 +36,7 @@ const createWindow = (): Window => {
         // TODO: Implement any additional logic needed after pattern analysis, inside patternDetectionService (prefer) or inside analyzePatterns
       }
     },
-    5 * 60 * 1000
+    1 * 60 * 1000
   );
 
   return window;

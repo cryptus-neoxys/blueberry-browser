@@ -63,7 +63,7 @@ export const MemoryViewer: React.FC<MemoryViewerProps> = ({
       }
 
       const result = (await window.sidebarAPI.listMemories(
-        options
+        options,
       )) as MemoryListResult;
 
       if (reset) {

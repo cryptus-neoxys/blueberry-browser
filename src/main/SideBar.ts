@@ -25,12 +25,12 @@ export class SideBar {
       // In development, load through Vite dev server
       const sidebarUrl = new URL(
         "/sidebar/",
-        process.env["ELECTRON_RENDERER_URL"]
+        process.env["ELECTRON_RENDERER_URL"],
       );
       this.webContentsView.webContents.loadURL(sidebarUrl.toString());
     } else {
       this.webContentsView.webContents.loadFile(
-        join(__dirname, "../renderer/sidebar.html")
+        join(__dirname, "../renderer/sidebar.html"),
       );
     }
   }

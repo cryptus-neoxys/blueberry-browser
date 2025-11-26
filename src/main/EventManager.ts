@@ -16,7 +16,7 @@ export class EventManager {
 
   private registerHandler(
     channel: string,
-    handler: Parameters<typeof ipcMain.handle>[1]
+    handler: Parameters<typeof ipcMain.handle>[1],
   ): void {
     // Remove existing handler if any to prevent "Attempted to register a second handler" error
     ipcMain.removeHandler(channel);
@@ -71,7 +71,8 @@ export class EventManager {
     });
 
     // Get tabs
-    this.registerHandler("get-tabs", () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    this.registerHandler("get-tabs", (_event) => {
       const activeTabId = this.mainWindow.activeTab?.id;
       return this.mainWindow.allTabs.map((tab) => ({
         id: tab.id,
@@ -97,7 +98,7 @@ export class EventManager {
           return true;
         }
         return false;
-      }
+      },
     );
 
     this.registerHandler("go-back", () => {
@@ -163,7 +164,7 @@ export class EventManager {
           return await tab.runJs(code);
         }
         return null;
-      }
+      },
     );
 
     // Tab info
@@ -303,7 +304,7 @@ export class EventManager {
     if (this.mainWindow.topBar.view.webContents !== sender) {
       this.mainWindow.topBar.view.webContents.send(
         "dark-mode-updated",
-        isDarkMode
+        isDarkMode,
       );
     }
 
@@ -311,7 +312,7 @@ export class EventManager {
     if (this.mainWindow.sidebar.view.webContents !== sender) {
       this.mainWindow.sidebar.view.webContents.send(
         "dark-mode-updated",
-        isDarkMode
+        isDarkMode,
       );
     }
 

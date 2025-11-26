@@ -19,12 +19,12 @@ export class TopBar {
       // In development, load through Vite dev server
       const topbarUrl = new URL(
         "/topbar/",
-        process.env["ELECTRON_RENDERER_URL"]
+        process.env["ELECTRON_RENDERER_URL"],
       );
       this.webContentsView.webContents.loadURL(topbarUrl.toString());
     } else {
       this.webContentsView.webContents.loadFile(
-        join(__dirname, "../renderer/topbar.html")
+        join(__dirname, "../renderer/topbar.html"),
       );
     }
   }
