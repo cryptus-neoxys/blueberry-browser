@@ -1,4 +1,12 @@
 import { ElectronAPI } from "@electron-toolkit/preload";
+import type {
+  MemoryListOptions,
+  MemoryListResult,
+} from "../main/services/MemoryService";
+import type {
+  TelemetryListOptions,
+  TelemetryListResult,
+} from "../main/services/TelemetryService";
 
 interface CoreMessage {
   role: "user" | "assistant" | "system";
@@ -38,8 +46,11 @@ interface SidebarAPI {
   off: (channel: string, callback: (...args: unknown[]) => void) => void;
 
   // Memory + telemetry viewers
-  listMemories: (options?: unknown) => Promise<unknown>;
-  listTelemetry: (options?: unknown) => Promise<unknown>;
+  listMemories: (options?: MemoryListOptions) => Promise<MemoryListResult>;
+  listTelemetry: (
+    options?: TelemetryListOptions
+  ) => Promise<TelemetryListResult>;
+  openUrlInNewTab: (url: string) => Promise<unknown>;
 
   // Page content access
   getPageContent: () => Promise<string | null>;

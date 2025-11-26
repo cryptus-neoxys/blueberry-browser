@@ -21,16 +21,16 @@
 ## Tasks
 
 - [x] 0.0 IMP: Don't Create feature branch, continue in this same branch
-- [ ] 1.0 Extend memory data services and persistence for viewer + telemetry retention (this isn't mandatory, if it is too much work, don't add retention, or add it in a simpler way that will not break things!)
-  - [ ] 1.1 Update `MemoryService` with pagination, filters (type/date/search), and metadata projections for viewer needs
-  - [ ] 1.2 Add telemetry retention storage (LRU cap 2,000 records) or document chosen simplified approach if deferred
-  - [ ] 1.3 Expose new IPC handlers in `EventManager` for listing memories/telemetry, with preload typings
-  - [ ] 1.4 Write unit/integration tests for new data APIs (MemoryService + telemetry store)
-- [ ] 2.0 Build sidebar memory viewer UI/UX with filtering and deep links
-  - [ ] 2.1 Add header icon + panel shell in sidebar app to toggle memory viewer
-  - [ ] 2.2 Implement paginated list view with filters and search UI wired to IPC APIs
-  - [ ] 2.3 Create detail view (drawer/modal) showing full memory entry, metadata, and open-in-tab link
-  - [ ] 2.4 Add empty/error/loading states and unit/UI tests
+- [x] 1.0 Extend memory data services and persistence for viewer + telemetry retention (this isn't mandatory, if it is too much work, don't add retention, or add it in a simpler way that will not break things!)
+  - [x] 1.1 Update `MemoryService` with pagination, filters (type/date/search), and metadata projections for viewer needs
+  - [x] 1.2 Add telemetry retention storage (LRU cap 2,000 records) or document chosen simplified approach if deferred
+  - [x] 1.3 Expose new IPC handlers in `EventManager` for listing memories/telemetry, with preload typings
+  - [x] 1.4 Write unit/integration tests for new data APIs (MemoryService + telemetry store)
+- [x] 2.0 Build sidebar memory viewer UI/UX with filtering and deep links
+  - [x] 2.1 Add header icon + panel shell in sidebar app to toggle memory viewer
+  - [x] 2.2 Implement paginated list view with filters and search UI wired to IPC APIs
+  - [x] 2.3 Create detail view (drawer/modal) showing full memory entry, metadata, and open-in-tab link
+  - [x] 2.4 Add empty/error/loading states and unit/UI tests
 - [ ] 3.0 Enhance suggestion engine (PatternDetectionService) and telemetry ingestion
   - [ ] 3.1 Capture tab telemetry (last 500+ events) and store with retention rules
   - [ ] 3.2 Expand pattern heuristics + LLM prompts to generate structured suggestions referencing capability manifest

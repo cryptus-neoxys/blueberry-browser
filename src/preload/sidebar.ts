@@ -38,7 +38,7 @@ const sidebarAPI = {
 
   onMessagesUpdated: (callback: (messages: CoreMessage[]) => void) => {
     electronAPI.ipcRenderer.on("chat-messages-updated", (_, messages) =>
-      callback(messages),
+      callback(messages)
     );
   },
 
@@ -64,6 +64,9 @@ const sidebarAPI = {
     electronAPI.ipcRenderer.invoke("memories:list", options),
   listTelemetry: (options?: unknown) =>
     electronAPI.ipcRenderer.invoke("telemetry:list", options),
+
+  openUrlInNewTab: (url: string) =>
+    electronAPI.ipcRenderer.invoke("create-tab", url),
 
   // Page content access
   getPageContent: () => electronAPI.ipcRenderer.invoke("get-page-content"),

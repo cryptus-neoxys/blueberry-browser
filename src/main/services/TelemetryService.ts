@@ -26,11 +26,17 @@ export interface TelemetryListResult {
 const DEFAULT_LIMIT = 100;
 const MAX_RETENTION = 2000;
 
+export interface TelemetryServiceOptions {
+  maxRetention?: number;
+}
+
 export class TelemetryService {
   private dbPromise: Promise<MyDatabase>;
+  private maxRetention: number;
 
-  constructor() {
+  constructor(options: TelemetryServiceOptions = {}) {
     this.dbPromise = getDatabase();
+    this.maxRetention = options.maxRetention ?? MAX_RETENTION;
   }
 
   async recordEvent(event: TelemetryEventInput): Promise<TelemetryDocType> {
@@ -52,7 +58,7 @@ export class TelemetryService {
   }
 
   async listEvents(
-    options: TelemetryListOptions = {},
+    options: TelemetryListOptions = {}
   ): Promise<TelemetryListResult> {
     const db = await this.dbPromise;
     const limit = options.limit ?? DEFAULT_LIMIT;
@@ -89,7 +95,7 @@ export class TelemetryService {
       })
       .exec();
 
-    const overLimit = docs.length - MAX_RETENTION;
+    const overLimit = docs.length - this.maxRetention;
     if (overLimit <= 0) {
       return;
     }
