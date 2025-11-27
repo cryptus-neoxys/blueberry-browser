@@ -118,6 +118,13 @@ export class Window {
       tab.hide();
     }
 
+    // Listen for tab updates
+    tab.webContents.on("page-title-updated", () => this.emitTabsUpdate());
+    tab.webContents.on("did-navigate", () => this.emitTabsUpdate());
+    tab.webContents.on("did-navigate-in-page", () => this.emitTabsUpdate());
+
+    this.emitTabsUpdate();
+
     return tab;
   }
 
@@ -146,6 +153,8 @@ export class Window {
       }
     }
 
+    this.emitTabsUpdate();
+
     // If no tabs left, close the window
     if (this.tabsMap.size === 0) {
       this._baseWindow.close();
@@ -166,12 +175,9 @@ export class Window {
       return false;
     }
 
-    this.tabOrder = newOrder;
+    this.tabOrder = [...newOrder];
 
-    // Emit event to TopBar to refresh UI
-    this._topBar.webContents.send("tabs-reordered", {
-      newOrder: this.tabOrder,
-    });
+    this.emitTabsUpdate();
 
     return true;
   }
@@ -197,7 +203,22 @@ export class Window {
     // Update the window title to match the tab title
     this._baseWindow.setTitle(tab.title || "Blueberry Browser");
 
+    this.emitTabsUpdate();
+
     return true;
+  }
+
+  private emitTabsUpdate(): void {
+    const tabsData = this.allTabs.map((tab) => ({
+      id: tab.id,
+      title: tab.title,
+      url: tab.url,
+      isActive: this.activeTabId === tab.id,
+    }));
+    this._topBar.webContents.send("tabs-updated", tabsData);
+    if (this._sideBar) {
+      this._sideBar.webContents.send("tabs-updated", tabsData);
+    }
   }
 
   getTab(tabId: string): Tab | null {

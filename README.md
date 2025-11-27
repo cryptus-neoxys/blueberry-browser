@@ -24,7 +24,7 @@ This is a POC for a proactive autonomous browser agent which suggests user's act
 
 #### [High Level Overview, Architecture](docs/project-overview.md#memory--persistence-layer)
 
-### [Low Level Structure and Design: To Be Added](#)
+### [Low Level Structure and Design: To Be Added](https://deepwiki.com/cryptus-neoxys/blueberry-arch)
 
 ## 💡 Features
 

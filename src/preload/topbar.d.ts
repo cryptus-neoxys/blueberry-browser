@@ -28,6 +28,10 @@ interface TopBarAPI {
 
   // Sidebar
   toggleSidebar: () => Promise<void>;
+
+  // Events
+  onTabsUpdated: (callback: (tabs: TabInfo[]) => void) => void;
+  removeTabsUpdatedListener: () => void;
 }
 
 declare global {

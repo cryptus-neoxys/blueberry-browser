@@ -10,6 +10,7 @@ let eventManager: EventManager | null = null;
 let menu: AppMenu | null = null;
 let patternDetectionService: PatternDetectionService | null = null;
 
+const PATTERN_ANALYSIS_INTERVAL_SECONDS = 60;
 const createWindow = (): Window => {
   // Ensure previous event manager is cleaned up
   if (eventManager) {
@@ -28,16 +29,11 @@ const createWindow = (): Window => {
   window.load();
 
   // Set up 5-minute interval for pattern analysis
-  setInterval(
-    async () => {
-      if (patternDetectionService) {
-        await patternDetectionService.analyzePatterns();
-
-        // TODO: Implement any additional logic needed after pattern analysis, inside patternDetectionService (prefer) or inside analyzePatterns
-      }
-    },
-    1 * 60 * 1000,
-  );
+  setInterval(async () => {
+    if (patternDetectionService) {
+      await patternDetectionService.analyzePatterns();
+    }
+  }, PATTERN_ANALYSIS_INTERVAL_SECONDS * 1000);
 
   return window;
 };

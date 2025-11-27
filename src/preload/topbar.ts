@@ -30,6 +30,14 @@ const topBarAPI = {
 
   // Sidebar
   toggleSidebar: () => electronAPI.ipcRenderer.invoke("toggle-sidebar"),
+
+  // Events
+  onTabsUpdated: (callback: (tabs: unknown[]) => void) => {
+    electronAPI.ipcRenderer.on("tabs-updated", (_, tabs) => callback(tabs));
+  },
+  removeTabsUpdatedListener: () => {
+    electronAPI.ipcRenderer.removeAllListeners("tabs-updated");
+  },
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to
