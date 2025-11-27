@@ -1,6 +1,8 @@
 # Blueberry Browser
 
-// TODO add video
+
+https://github.com/user-attachments/assets/f80e6522-25ab-415a-ae9a-0377e875b28b
+
 
 ---
 
@@ -24,9 +26,13 @@ This is a POC for a proactive autonomous browser agent which suggests user's act
 
 #### [High Level Overview, Architecture](docs/project-overview.md#memory--persistence-layer)
 
-### [Low Level Structure and Design: To Be Added](https://deepwiki.com/cryptus-neoxys/blueberry-arch)
+#### [Low Level Structure and Design](https://deepwiki.com/cryptus-neoxys/blueberry-arch)
 
 ## 💡 Features
+
+### **Autonomous Action Engine**
+
+Learning from the user's browser usage, the browser periodically suggests actions in the sidebar to be performed. Users don't even need to prompt for any browser actions, they just use the browser and it automatically infers, learns and does things for them.
 
 ### **Browser Trace Compiler**
 
