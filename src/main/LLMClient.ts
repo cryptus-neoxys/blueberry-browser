@@ -72,15 +72,12 @@ export class LLMClient {
       title: z.string().describe("Short, action-oriented title"),
       description: z
         .string()
+        .optional()
         .describe("Clear explanation of what this automation does"),
       triggerContext: z
         .string()
+        .optional()
         .describe("Why this workflow is being suggested based on the context"),
-      isValid: z
-        .boolean()
-        .describe(
-          "Set to true if a valid, helpful workflow was found. Set to false if no pattern was detected.",
-        ),
       actions: z.array(
         z.object({
           type: z.enum(["navigate", "click", "input", "wait", "reorder-tabs"]),
@@ -95,6 +92,7 @@ export class LLMClient {
             .describe("Additional data for actions like reorder-tabs"),
           description: z
             .string()
+            .optional()
             .describe("Human-readable description of this step"),
         }),
       ),
@@ -121,10 +119,25 @@ ANALYSIS GUIDELINES:
 - Look for "Tab Clutter": If the user has many tabs from the same domain scattered, suggest reordering them to group by domain (e.g., all GitHub tabs together).
 
 OUTPUT RULES:
-- If you find a helpful pattern, set 'isValid' to true and populate 'actions'.
-- If the context is random or no clear pattern exists, set 'isValid' to false and return an empty action list.
+- If you find a helpful pattern, populate all fields and include meaningful actions in the 'actions' array.
+- If the context is random or no clear pattern exists, return an empty actions array.
 - Be conservative. Only suggest workflows that clearly save time.
 - For reorder-tabs, provide the newOrder as an array of tab IDs, grouping related tabs together (e.g., by domain).
+- Always structure your response as a JSON object with an 'actions' array containing action objects, each with a 'type' field.
+
+EXAMPLE RESPONSE STRUCTURE:
+{
+  "id": "workflow-1",
+  "title": "Organize Tabs by Domain",
+  "description": "Group related tabs together",
+  "actions": [
+    {
+      "type": "reorder-tabs",
+      "description": "Reorder tabs to group by domain",
+      "payload": {"newOrder": ["tab-1", "tab-2", "tab-3"]}
+    }
+  ]
+}
         `,
         prompt: `
 Analyze this context:
@@ -136,7 +149,7 @@ ${JSON.stringify(context.recentTelemetry, null, 2)}
         `,
       });
 
-      if (!object.isValid) {
+      if (!object.actions || object.actions.length === 0) {
         return null;
       }
 

@@ -10,13 +10,13 @@ export interface Action {
   target?: string; // URL for navigate, selector for click/input
   value?: string; // Value for input
   payload?: Record<string, unknown>; // Additional data for actions like reorder-tabs
-  description: string;
+  description?: string;
 }
 
 export interface Workflow {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   actions: Action[];
-  triggerContext: string; // Description of what triggered this workflow
+  triggerContext?: string; // Description of what triggered this workflow
 }
