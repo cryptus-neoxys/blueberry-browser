@@ -45,10 +45,16 @@ interface SidebarAPI {
   on: (channel: string, callback: (...args: unknown[]) => void) => void;
   off: (channel: string, callback: (...args: unknown[]) => void) => void;
 
+  // Suggestions
+  onSuggestion: (callback: (suggestion: unknown) => void) => void;
+  removeSuggestionListener: () => void;
+  acceptSuggestion: (id: string) => Promise<void>;
+  rejectSuggestion: (id: string) => Promise<void>;
+
   // Memory + telemetry viewers
   listMemories: (options?: MemoryListOptions) => Promise<MemoryListResult>;
   listTelemetry: (
-    options?: TelemetryListOptions
+    options?: TelemetryListOptions,
   ) => Promise<TelemetryListResult>;
   openUrlInNewTab: (url: string) => Promise<unknown>;
 

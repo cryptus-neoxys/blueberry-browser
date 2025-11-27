@@ -63,7 +63,7 @@ export const MemoryViewer: React.FC<MemoryViewerProps> = ({
       }
 
       const result = (await window.sidebarAPI.listMemories(
-        options
+        options,
       )) as MemoryListResult;
 
       if (reset) {
@@ -110,7 +110,7 @@ export const MemoryViewer: React.FC<MemoryViewerProps> = ({
     void window.sidebarAPI.openUrlInNewTab(url);
   };
 
-  const renderEmptyState = () => (
+  const renderEmptyState = (): React.JSX.Element => (
     <div className="text-center p-8 text-muted-foreground">
       {error ? (
         <div className="flex flex-col items-center gap-2">

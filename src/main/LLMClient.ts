@@ -1,11 +1,19 @@
 import { WebContents } from "electron";
-import { streamText, type LanguageModel, type CoreMessage } from "ai";
+import {
+  streamText,
+  generateObject,
+  type LanguageModel,
+  type CoreMessage,
+} from "ai";
 import { openai } from "@ai-sdk/openai";
 import { anthropic } from "@ai-sdk/anthropic";
+import { z } from "zod";
 import * as dotenv from "dotenv";
 import { join } from "path";
 import type { Window } from "./Window";
 import { MemoryService } from "./services/MemoryService";
+import { ContextSnapshot } from "./services/ContextAssembler";
+import { Workflow } from "./types";
 
 // Load environment variables from .env file
 dotenv.config({ path: join(__dirname, "../../.env") });
@@ -52,6 +60,104 @@ export class LLMClient {
   // Set the window reference after construction to avoid circular dependencies
   setWindow(window: Window): void {
     this.window = window;
+  }
+
+  async analyzeContextAndSuggestWorkflow(
+    context: ContextSnapshot,
+  ): Promise<Workflow | null> {
+    if (!this.model) return null;
+
+    const workflowSchema = z.object({
+      id: z.string().describe("Unique identifier for the workflow"),
+      title: z.string().describe("Short, action-oriented title"),
+      description: z
+        .string()
+        .optional()
+        .describe("Clear explanation of what this automation does"),
+      triggerContext: z
+        .string()
+        .optional()
+        .describe("Why this workflow is being suggested based on the context"),
+      actions: z.array(
+        z.object({
+          type: z.enum(["navigate", "click", "input", "wait", "reorder-tabs"]),
+          target: z
+            .string()
+            .optional()
+            .describe("URL for navigate, CSS selector for click/input"),
+          value: z.string().optional().describe("Text to input"),
+          payload: z
+            .record(z.string(), z.unknown())
+            .optional()
+            .describe("Additional data for actions like reorder-tabs"),
+          description: z
+            .string()
+            .optional()
+            .describe("Human-readable description of this step"),
+        }),
+      ),
+    });
+
+    try {
+      const { object } = await generateObject({
+        model: this.model,
+        schema: workflowSchema,
+        system: `
+You are the "Workflow Analyst" for a smart browser. Your goal is to detect repetitive patterns or helpful automations based on the user's current context.
+
+AVAILABLE ACTIONS:
+1. navigate(url): Open a specific URL.
+2. click(selector): Click an element on the page.
+3. input(selector, value): Type text into a field.
+4. wait(ms): Pause execution.
+5. reorder-tabs(payload): Reorder the open tabs. Payload should include 'newOrder' as an array of tab IDs in the desired order.
+
+ANALYSIS GUIDELINES:
+- Look for "Research Sessions": If the user has multiple tabs open about a topic, suggest opening related resources or organizing them.
+- Look for "Form Filling": If the user is on a login/signup page, suggest filling known credentials (if safe) or navigating to the dashboard.
+- Look for "Daily Routines": If the user opens specific sites together, suggest opening them all at once.
+- Look for "Tab Clutter": If the user has many tabs from the same domain scattered, suggest reordering them to group by domain (e.g., all GitHub tabs together).
+
+OUTPUT RULES:
+- If you find a helpful pattern, populate all fields and include meaningful actions in the 'actions' array.
+- If the context is random or no clear pattern exists, return an empty actions array.
+- Be conservative. Only suggest workflows that clearly save time.
+- For reorder-tabs, provide the newOrder as an array of tab IDs, grouping related tabs together (e.g., by domain).
+- Always structure your response as a JSON object with an 'actions' array containing action objects, each with a 'type' field.
+
+EXAMPLE RESPONSE STRUCTURE:
+{
+  "id": "workflow-1",
+  "title": "Organize Tabs by Domain",
+  "description": "Group related tabs together",
+  "actions": [
+    {
+      "type": "reorder-tabs",
+      "description": "Reorder tabs to group by domain",
+      "payload": {"newOrder": ["tab-1", "tab-2", "tab-3"]}
+    }
+  ]
+}
+        `,
+        prompt: `
+Analyze this context:
+OPEN TABS:
+${JSON.stringify(context.openTabs, null, 2)}
+
+RECENT TELEMETRY (Last 5 mins):
+${JSON.stringify(context.recentTelemetry, null, 2)}
+        `,
+      });
+
+      if (!object.actions || object.actions.length === 0) {
+        return null;
+      }
+
+      return object as Workflow;
+    } catch (error) {
+      console.error("Failed to generate workflow suggestion:", error);
+      return null;
+    }
   }
 
   private getProvider(): LLMProvider {

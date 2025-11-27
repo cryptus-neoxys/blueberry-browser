@@ -1,5 +1,5 @@
 import { is } from "@electron-toolkit/utils";
-import { BaseWindow, WebContentsView } from "electron";
+import { BaseWindow, WebContentsView, WebContents } from "electron";
 import { join } from "path";
 
 export class TopBar {
@@ -13,6 +13,22 @@ export class TopBar {
     this.setupBounds();
   }
 
+  public load(): void {
+    // Load the TopBar React app
+    if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
+      // In development, load through Vite dev server
+      const topbarUrl = new URL(
+        "/topbar/",
+        process.env["ELECTRON_RENDERER_URL"],
+      );
+      this.webContentsView.webContents.loadURL(topbarUrl.toString());
+    } else {
+      this.webContentsView.webContents.loadFile(
+        join(__dirname, "../renderer/topbar.html"),
+      );
+    }
+  }
+
   private createWebContentsView(): WebContentsView {
     const webContentsView = new WebContentsView({
       webPreferences: {
@@ -22,20 +38,6 @@ export class TopBar {
         sandbox: false, // Need to disable sandbox for preload to work
       },
     });
-
-    // Load the TopBar React app
-    if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
-      // In development, load through Vite dev server
-      const topbarUrl = new URL(
-        "/topbar/",
-        process.env["ELECTRON_RENDERER_URL"],
-      );
-      webContentsView.webContents.loadURL(topbarUrl.toString());
-    } else {
-      webContentsView.webContents.loadFile(
-        join(__dirname, "../renderer/topbar.html"),
-      );
-    }
 
     return webContentsView;
   }
@@ -56,5 +58,9 @@ export class TopBar {
 
   get view(): WebContentsView {
     return this.webContentsView;
+  }
+
+  get webContents(): WebContents {
+    return this.webContentsView.webContents;
   }
 }

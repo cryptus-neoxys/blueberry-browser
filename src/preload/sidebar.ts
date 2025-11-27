@@ -38,7 +38,7 @@ const sidebarAPI = {
 
   onMessagesUpdated: (callback: (messages: CoreMessage[]) => void) => {
     electronAPI.ipcRenderer.on("chat-messages-updated", (_, messages) =>
-      callback(messages)
+      callback(messages),
     );
   },
 
@@ -50,14 +50,22 @@ const sidebarAPI = {
     electronAPI.ipcRenderer.removeAllListeners("chat-messages-updated");
   },
 
-  // Proactive suggestions
-  on: (channel: string, callback: (...args: unknown[]) => void) => {
-    electronAPI.ipcRenderer.on(channel, callback);
+  // Suggestions
+  onSuggestion: (callback: (suggestion: unknown) => void) => {
+    electronAPI.ipcRenderer.on("proactive-suggestion", (_, suggestion) =>
+      callback(suggestion),
+    );
   },
 
-  off: (channel: string, callback: (...args: unknown[]) => void) => {
-    electronAPI.ipcRenderer.removeListener(channel, callback);
+  removeSuggestionListener: () => {
+    electronAPI.ipcRenderer.removeAllListeners("proactive-suggestion");
   },
+
+  acceptSuggestion: (id: string) =>
+    electronAPI.ipcRenderer.invoke("suggestion:accept", id),
+
+  rejectSuggestion: (id: string) =>
+    electronAPI.ipcRenderer.invoke("suggestion:reject", id),
 
   // Memory + telemetry viewers
   listMemories: (options?: unknown) =>

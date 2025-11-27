@@ -1,7 +1,9 @@
 import { ipcMain, WebContents } from "electron";
 import type { Window } from "./Window";
+import { Workflow } from "./types";
 import { MemoryService } from "./services/MemoryService";
 import { TelemetryService } from "./services/TelemetryService";
+import { ActionExecutor } from "./services/ActionExecutor";
 
 export class EventManager {
   private mainWindow: Window;
@@ -46,6 +48,9 @@ export class EventManager {
 
     // Debug events
     this.handleDebugEvents();
+
+    // Suggestion events
+    this.handleSuggestionEvents();
   }
 
   private handleTabEvents(): void {
@@ -66,7 +71,8 @@ export class EventManager {
     });
 
     // Get tabs
-    this.registerHandler("get-tabs", () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    this.registerHandler("get-tabs", (_event) => {
       const activeTabId = this.mainWindow.activeTab?.id;
       return this.mainWindow.allTabs.map((tab) => ({
         id: tab.id,
@@ -261,6 +267,36 @@ export class EventManager {
   private handleDebugEvents(): void {
     // Ping test
     ipcMain.on("ping", () => console.log("pong"));
+  }
+
+  private handleSuggestionEvents(): void {
+    this.registerHandler("suggestion:accept", async (_, id: string) => {
+      console.log(`Accepted suggestion ${id}`);
+      // Update status in DB
+      const { getDatabase } = await import("./database");
+      const db = await getDatabase();
+      const doc = await db.suggestions.findOne(id).exec();
+      if (doc) {
+        await doc.patch({ status: "accepted" });
+
+        // Execute workflow
+        if (doc.workflow) {
+          const executor = new ActionExecutor(this.mainWindow);
+          await executor.executeWorkflow(doc.workflow as Workflow);
+        }
+      }
+    });
+
+    this.registerHandler("suggestion:reject", async (_, id: string) => {
+      console.log(`Rejected suggestion ${id}`);
+      // Update status in DB
+      const { getDatabase } = await import("./database");
+      const db = await getDatabase();
+      const doc = await db.suggestions.findOne(id).exec();
+      if (doc) {
+        await doc.patch({ status: "rejected" });
+      }
+    });
   }
 
   private broadcastDarkMode(sender: WebContents, isDarkMode: boolean): void {

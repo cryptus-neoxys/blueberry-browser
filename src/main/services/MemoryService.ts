@@ -33,7 +33,7 @@ export class MemoryService {
     content: string,
     type: "chat" | "page",
     metadata: Record<string, unknown> = {},
-    embedding: number[] = []
+    embedding: number[] = [],
   ): Promise<MemoryDocType> {
     const db = await this.dbPromise;
     const id = randomUUID();
@@ -86,7 +86,7 @@ export class MemoryService {
   }
 
   async listEntries(
-    options: MemoryListOptions = {}
+    options: MemoryListOptions = {},
   ): Promise<MemoryListResult> {
     const db = await this.dbPromise;
     const limit = options.limit ?? 50;
@@ -172,7 +172,7 @@ export class MemoryService {
 
   async searchSimilar(
     query: string,
-    limit: number = 5
+    limit: number = 5,
   ): Promise<Array<MemoryDocType & { similarity: number }>> {
     const queryEmbedding = await this.embeddingService.generateEmbedding(query);
     const allEntries = await this.getAllEntries();
@@ -182,7 +182,7 @@ export class MemoryService {
         ...entry,
         similarity: this.cosineSimilarity(
           queryEmbedding,
-          entry.embedding || []
+          entry.embedding || [],
         ),
       }))
       .filter((entry) => entry.similarity > 0)
