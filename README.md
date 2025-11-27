@@ -1,85 +1,81 @@
 # Blueberry Browser
 
-> **⚠️ Disclaimer:** I'm not proud of this codebase! It was built in 3 hours. If you have some time left over in the challenge, feel free to refactor and clean things up!
-
-https://github.com/user-attachments/assets/bbf939e2-d87c-4c77-ab7d-828259f6d28d
+// TODO add video
 
 ---
 
 ## Overview
 
-You are the **CTO of Blueberry Browser**, a Strawberry competitor. Your mission is to add a feature to Blueberry that makes it superior & more promising than Strawberry.
+This is a POC for a proactive autonomous browser agent which suggests user's actions based on their browser usage.
 
-But your time is limited—Strawberry is about to raise a two billion dollar Series A round from X-Separator, B17Å and Sequoiadendron giganteum Capital.
+![navigation suggestion](docs/media/navigation_suggestion.jpeg)
 
-## 🎯 Task
+## Approach
 
-Your job is to **clone this repo** and add a unique feature. Some ideas are listed below.
+1. Memory Layer: Base layer for memory which combines vector (RxDb) DB for embeddings and structured (Dexie.js) SQL-like datastores:
+   1. SQL rows store reference to embeddings. (denormalised for this MVP)
+   2. improvements: a\) 2-way mapping 1:1 map (Rows --- Embeddings) b\) Use Graph DBs to store both structure and semantics.
+2. Store browser trace into the memory layer.
+   1. The browser stores chats, opened tabs, history into the memory layer which is used to generate action suggestions
+3. The browser runs a periodic CRON, to retrieve the browser trace, current chat memory to prompt an LLM to generate actions
+4. These actions are then suggested to users based on
 
-It doesn't need to work 100% reliably, or even be completely done. It just has to:
+### Detailed Structure:
 
-- Show that you are creative and can iterate on novel ideas fast
-- Demonstrate good system thinking and code practices  
-- Prove you are a capable full stack and/or LLM dev
+#### [High Level Overview, Architecture](docs/project-overview.md#memory--persistence-layer)
 
-Once you're done, we'll book a call where you'll get to present your work!
+### [Low Level Structure and Design: To Be Added](#)
 
-If it's cracked, we might just have to acquire Blueberry Browser to stay alive 👀👀👀
+## 💡 Features
 
-### ⏰ Time
+### **Browser Trace Compiler**
 
-**1-2 weeks** is ideal for this challenge. This allows you to work over weekends and during evenings in your own time.
+Track the things that the user is doing inside the browser and figure out from a series of browser states what the user is doing, and perhaps how
+valuable, repetitive tasks can be re-run by an AI agent.
 
-### 📋 Rules
+Tracks Chats, History, Open Tab(s) -> Input to LLMs -> Action
 
-You are allowed to vibe code, but make sure you understand everything so we can ask technical questions.
+### **Tab Group organiser**
 
-## 💡 Feature Ideas
+Automagically re-organise the tabs from usage patterns.
 
-### **Browsing History Compiler**
-Track the things that the user is doing inside the browser and figure out from a series of browser states what the user is doing, and perhaps how valuable, repetitive tasks can be re-run by an AI agent.
+### **Gemini Computer Usage**
 
-*Tab state series → Prompt for web agent how to reproduce the work*
+Implemented a PoC CU that leverages Blueberry to automate work.
 
-### **Coding Agent**
-Sidebar coding agent that can create a script that can run on the open tabs.
+Current Actions Supported:
 
-Maybe useful for filling forms or changing the page's style so it can extract data but present it in a nicer format.
+1. navigate
+2. perform click actions
+3. fill forms
+4. re-organise tabs
 
-### **Tab Completion Model**
-Predict next action or what to type, like Cursor's tab completion model.
+## Known Gaps
 
-### **Your Own Idea**
-Feel free to implement your own idea!
+- Doesn’t use a battle tested frameworks like Langgraph/Langgraph for its action model:
+  - prompt and action models need a lot more refining and testing to be productionised.
+- ⁠Lifecycle management of chats, embedddings, actions
+  - The chats are persistent throughout the browser session, they are never deleted or archived which can cause memory/storage issues, bottlenecks in performance in a production environment.
 
-> Wanted to try transformers.js for a while? This is your chance! 
+## Future Scope:
 
-> Have an old cool web agent framework you built? Let's see if you can merge it into the browser!
-
-> Think you can add a completely new innovation to the browser concept with some insane, over-engineered React? Lfg!
-
-Make sure you can realistically showcase a simple version of it in the timeframe. You can double check with us first if uncertain! :)
-
-## 💬 Tips
-
-Feel free to write to us with questions or send updates during the process—it's a good way to get a feel for working together.
-
-It can also be a good way for us to give feedback if things are heading in the right or wrong direction.
+- We currently only learn from inputs to the suggestion-engine like chats, history, open tabs, etc, for improving the suggestions we can learn user’s behaviour from the action on these prompts as well to make them better personalised to the user
+- Blackbox reranking of browser actions, for this assignment I didn’t make the mathematical heuristics for reranking the suggestions ie whether 5 open tabs to be grouped should be the better suggestion or Revisiting a daily website is decided by the LLM, but these can be made to more deterministic with some fundamental ML (maths)
+- ⁠Easiest Local RLHF, it already has "Run Workflow", "Reject" mechanisms built-in :D
+- Cost Optimisation 💸 🔥 (basically caching, local models, intelligently not using LLMs where local models/ML/logic etc can be used)
 
 ---
 
 ## 🚀 Project Setup
 
 ### Install
+
 ```bash
 $ pnpm install
 ```
 
 ### Development
+
 ```bash
 $ pnpm dev
 ```
-
-**Add an OpenAI API key to `.env`** in the root folder.
-
-Strawberry will reimburse LLM costs, so go crazy! *(Please not more than a few hundred dollars though!)*
