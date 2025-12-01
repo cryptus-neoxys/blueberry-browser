@@ -160,6 +160,9 @@ const LoadingIndicator: React.FC = () => {
   );
 };
 
+import { useTypeahead } from "../hooks/useTypeahead";
+import { TypeaheadDropdown } from "./TypeaheadDropdown";
+
 // Chat Input Component with pill design
 const ChatInput: React.FC<{
   onSend: (message: string) => void;
@@ -168,6 +171,15 @@ const ChatInput: React.FC<{
   const [value, setValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const {
+    suggestions,
+    selectedIndex,
+    isVisible,
+    search,
+    moveSelection,
+    selectCurrent,
+    clear,
+  } = useTypeahead();
 
   // Auto-resize textarea
   useEffect(() => {
@@ -183,6 +195,7 @@ const ChatInput: React.FC<{
     if (value.trim() && !disabled) {
       onSend(value.trim());
       setValue("");
+      clear(); // Clear suggestions on send
       // Reset textarea height
       if (textareaRef.current) {
         textareaRef.current.style.height = "24px";
@@ -191,10 +204,46 @@ const ChatInput: React.FC<{
   };
 
   const handleKeyDown = (e: React.KeyboardEvent): void => {
+    if (isVisible) {
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        moveSelection("up");
+        return;
+      }
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        moveSelection("down");
+        return;
+      }
+      if (e.key === "Tab" || e.key === "Enter") {
+        if (selectedIndex >= 0) {
+          e.preventDefault();
+          const selected = selectCurrent();
+          if (selected) {
+            setValue(selected);
+            clear();
+            // Optional: Focus back to textarea if needed, though we are likely already focused
+          }
+          return;
+        }
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        clear();
+        return;
+      }
+    }
+
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
     }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
+    const newValue = e.target.value;
+    setValue(newValue);
+    search(newValue);
   };
 
   return (
@@ -205,8 +254,23 @@ const ChatInput: React.FC<{
         isFocused
           ? "border-primary/20 dark:border-primary/30"
           : "border-border",
+        "relative", // For positioning dropdown
       )}
     >
+      {isVisible && (
+        <div className="absolute bottom-full left-0 w-full mb-2 z-50">
+          <TypeaheadDropdown
+            suggestions={suggestions}
+            selectedIndex={selectedIndex}
+            onSelect={(suggestion) => {
+              setValue(suggestion);
+              clear();
+              textareaRef.current?.focus();
+            }}
+          />
+        </div>
+      )}
+
       {/* Input Area */}
       <div className="w-full px-3 py-2">
         <div className="w-full flex items-start gap-3">
@@ -214,9 +278,13 @@ const ChatInput: React.FC<{
             <textarea
               ref={textareaRef}
               value={value}
-              onChange={(e) => setValue(e.target.value)}
+              onChange={handleChange}
               onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
+              onBlur={() => {
+                setIsFocused(false);
+                // Delay clearing to allow click on dropdown
+                setTimeout(clear, 200);
+              }}
               onKeyDown={handleKeyDown}
               placeholder="Send a message..."
               className="w-full resize-none outline-none bg-transparent 

@@ -10,7 +10,7 @@ let eventManager: EventManager | null = null;
 let menu: AppMenu | null = null;
 let patternDetectionService: PatternDetectionService | null = null;
 
-const PATTERN_ANALYSIS_INTERVAL_SECONDS = 60;
+const PATTERN_ANALYSIS_INTERVAL_SECONDS = 300;
 const createWindow = (): Window => {
   // Ensure previous event manager is cleaned up
   if (eventManager) {
