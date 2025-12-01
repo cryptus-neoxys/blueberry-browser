@@ -8,6 +8,7 @@ export interface MemoryListOptions {
   offset?: number;
   type?: "chat" | "page";
   search?: string;
+  chatId?: string;
   startDate?: number;
   endDate?: number;
 }
@@ -33,6 +34,7 @@ export class MemoryService {
     content: string,
     type: "chat" | "page",
     metadata: Record<string, unknown> = {},
+    chatId?: string,
     embedding: number[] = [],
   ): Promise<MemoryDocType> {
     const db = await this.dbPromise;
@@ -55,6 +57,7 @@ export class MemoryService {
       content,
       type,
       metadata,
+      chatId,
       timestamp,
       embedding: finalEmbedding,
     });
@@ -95,6 +98,9 @@ export class MemoryService {
     const selector: Record<string, unknown> = {};
     if (options.type) {
       selector.type = options.type;
+    }
+    if (options.chatId) {
+      selector.chatId = options.chatId;
     }
 
     if (options.startDate || options.endDate) {
@@ -173,9 +179,14 @@ export class MemoryService {
   async searchSimilar(
     query: string,
     limit: number = 5,
+    chatId?: string,
   ): Promise<Array<MemoryDocType & { similarity: number }>> {
     const queryEmbedding = await this.embeddingService.generateEmbedding(query);
-    const allEntries = await this.getAllEntries();
+    let allEntries = await this.getAllEntries();
+
+    if (chatId) {
+      allEntries = allEntries.filter((entry) => entry.chatId === chatId);
+    }
 
     const scoredEntries = allEntries
       .map((entry) => ({

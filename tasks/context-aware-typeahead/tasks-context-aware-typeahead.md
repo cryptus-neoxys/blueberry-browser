@@ -26,25 +26,25 @@
   - [x] 1.3 Update `MemoryService.ts` `listEntries` and `searchSimilar` to support filtering by `chatId`.
   - [x] 1.4 Verify database migration/update works (or clear DB for dev).
 
-- [ ] 2.0 Implement Local Trie & Prefix Matching
-  - [ ] 2.1 Create `src/renderer/sidebar/src/utils/Trie.ts` with `insert`, `search`, and `getCompletions(prefix, limit)` methods.
-  - [ ] 2.2 Create `src/renderer/sidebar/src/utils/Trie.test.ts` and add unit tests for prefix matching and completion ranking.
-  - [ ] 2.3 Implement a `VocabularyService` or helper to extract keywords from open tabs and chat history to populate the Trie.
+- [x] 2.0 Implement Local Trie & Prefix Matching
+  - [x] 2.1 Create `src/renderer/sidebar/src/utils/Trie.ts` with `insert`, `search`, and `getCompletions(prefix, limit)` methods.
+  - [x] 2.2 Create `src/renderer/sidebar/src/utils/Trie.test.ts` and add unit tests for prefix matching and completion ranking.
+  - [x] 2.3 Implement a `VocabularyService` or helper to extract keywords from open tabs and chat history to populate the Trie.
 
-- [ ] 3.0 Build Basic Typeahead UI & Integrate with Chat Input
-  - [ ] 3.1 Create `src/renderer/sidebar/src/components/TypeaheadDropdown.tsx` (Visual component only).
-  - [ ] 3.2 Create `src/renderer/sidebar/src/hooks/useTypeahead.ts` to manage state (input value, suggestions list, selected index).
-  - [ ] 3.3 Connect `useTypeahead` to the local Trie (from Task 2.0) for synchronous suggestions.
-  - [ ] 3.4 Modify `ChatInput` in `src/renderer/sidebar/src/components/Chat.tsx` to render `TypeaheadDropdown` and bind keyboard events (ArrowUp, ArrowDown, Tab/Enter).
-  - [ ] 3.5 Verify: Typing in Chat Input shows Trie-based suggestions from a mock vocabulary.
+- [x] 3.0 Build Basic Typeahead UI & Integrate with Chat Input
+  - [x] 3.1 Create `src/renderer/sidebar/src/components/TypeaheadDropdown.tsx` (Visual component only).
+  - [x] 3.2 Create `src/renderer/sidebar/src/hooks/useTypeahead.ts` to manage state (input value, suggestions list, selected index).
+  - [x] 3.3 Connect `useTypeahead` to the local Trie (from Task 2.0) for synchronous suggestions.
+  - [x] 3.4 Modify `ChatInput` in `src/renderer/sidebar/src/components/Chat.tsx` to render `TypeaheadDropdown` and bind keyboard events (ArrowUp, ArrowDown, Tab/Enter).
+  - [x] 3.5 Verify: Typing in Chat Input shows Trie-based suggestions from a mock vocabulary.
 
-- [ ] 4.0 Implement Semantic Search Integration
-  - [ ] 4.1 Update `useTypeahead.ts` to trigger debounced calls to `MemoryService.searchSimilar` (via IPC or direct service access if in renderer).
-  - [ ] 4.2 Merge semantic results with Trie results in `useTypeahead.ts` (Prioritize Trie for exact matches, Semantic for context).
-  - [ ] 4.3 Handle async loading states (optional subtle indicator).
+- [x] 4.0 Implement Semantic Search Integration
+  - [x] 4.1 Update `useTypeahead.ts` to trigger debounced calls to `MemoryService.searchSimilar` (via IPC or direct service access if in renderer).
+  - [x] 4.2 Merge semantic results with Trie results in `useTypeahead.ts` (Prioritize Trie for exact matches, Semantic for context).
+  - [x] 4.3 Handle async loading states (optional subtle indicator).
 
-- [ ] 5.0 Polish UI & Final Integration
-  - [ ] 5.1 Apply "Grok-like" styling to `TypeaheadDropdown.tsx` (Dark mode, rounded corners, specific typography).
-  - [ ] 5.2 Limit suggestions to max 6 items.
-  - [ ] 5.3 Ensure `chatId` is correctly passed from the active chat session to `MemoryService` when sending messages.
-  - [ ] 5.4 Final manual test: Verify suggestions appear from both History (Semantic) and Tab Titles (Trie).
+- [x] 5.0 Polish UI & Final Integration
+  - [x] 5.1 Apply "Grok-like" styling to `TypeaheadDropdown.tsx` (Dark mode, rounded corners, specific typography).
+  - [x] 5.2 Limit suggestions to max 6 items.
+  - [x] 5.3 Ensure `chatId` is correctly passed from the active chat session to `MemoryService` when sending messages.
+  - [x] 5.4 Final manual test: Verify suggestions appear from both History (Semantic) and Tab Titles (Trie).

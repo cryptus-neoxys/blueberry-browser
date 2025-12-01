@@ -29,6 +29,9 @@ export const MEMORY_SCHEMA_LITERAL = {
     metadata: {
       type: "object",
     },
+    chatId: {
+      type: "string",
+    },
     timestamp: {
       type: "number",
     },
